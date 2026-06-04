@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ecoprint Mutelu 🔮 ถอดรหัสผ้าพิมพ์ใบไม้ เปิดดวงมหาเฮง</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;600;700&family=Chonburi&display=swap" rel="stylesheet">
@@ -13,6 +15,24 @@
         .font-moo { font-family: 'Chonburi', serif; }
         .bg-moo-pastel {
             background: linear-gradient(135deg, #f3e8ff 0%, #fae8ff 50%, #fdf4ff 100%);
+        }
+        /* แอนิเมชันวงเวทย์สายมูหมุน ๆ ตอนสแกน */
+        @keyframes magic-rotate {
+            0% { transform: translate(-50%, -50%) rotate(0deg); opacity: 0.4; }
+            50% { transform: translate(-50%, -50%) rotate(180deg); opacity: 0.8; }
+            100% { transform: translate(-50%, -50%) rotate(360deg); opacity: 0.4; }
+        }
+        .magic-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 260px;
+            height: 260px;
+            border: 4px dashed #eab308;
+            border-radius: 50%;
+            animation: magic-rotate 6s linear infinite;
+            pointer-events: none;
+            box-shadow: 0 0 20px rgba(234, 179, 8, 0.3);
         }
     </style>
 </head>
@@ -50,16 +70,23 @@
                 </h2>
                 <p class="text-purple-700 text-xs mb-4">สวมเสื้อผ้า Eco-print ของคุณ แล้วเปิดกล้องสแกนระบบจะคำนวณเฉดสีที่แท้จริงและตรวจจับลวดลายใบไม้บนเนื้อผ้า</p>
                 
-                <div class="flex flex-col items-center justify-center border-2 border-dashed border-purple-200 rounded-2xl p-6 bg-purple-50/50 relative overflow-hidden">
-                    <video id="webcam" autoplay playsinline class="hidden w-full max-w-xs rounded-xl mb-4 border-4 border-amber-300 shadow-md"></video>
+                <div class="flex flex-col items-center justify-center border-2 border-dashed border-purple-200 rounded-2xl p-6 bg-purple-50/50 relative overflow-hidden min-h-[340px]">
+                    
+                    <video id="webcam" autoplay playsinline class="hidden w-full max-w-sm rounded-xl border-4 border-amber-300 shadow-md relative z-10"></video>
+                    
+                    <div id="magic-overlay" class="hidden absolute inset-0 z-20 bg-purple-950/10 pointer-events-none">
+                        <div class="magic-ring"></div>
+                        <div class="absolute top-[15%] left-1/2 -translate-x-1/2 text-amber-400 font-moo text-xs tracking-wider bg-purple-900/80 px-3 py-1 rounded-full animate-bounce">⚡ กำลังถอดรหัสลับสายมู ⚡</div>
+                    </div>
+
                     <canvas id="color-canvas" class="hidden" width="100" height="100"></canvas>
                     
-                    <div id="camera-icon" class="text-4xl mb-3">✨👚✨</div>
+                    <div id="camera-icon" class="text-4xl mb-3 z-10">✨👚✨</div>
                     
-                    <button onclick="startCameraScan()" class="bg-gradient-to-r from-purple-600 via-pink-500 to-amber-500 hover:brightness-105 text-white font-bold py-3 px-8 rounded-xl transition duration-200 cursor-pointer shadow-md text-sm tracking-wider">
+                    <button id="start-scan-btn" onclick="startCameraScan()" class="bg-gradient-to-r from-purple-600 via-pink-500 to-amber-500 hover:brightness-105 text-white font-bold py-3 px-8 rounded-xl transition duration-200 cursor-pointer shadow-md text-sm tracking-wider z-10">
                         เปิดกล้องสแกนเสื้อเปิดดวง
                     </button>
-                    <p id="scan-status" class="text-xs text-purple-500 mt-3 text-center">ระบบจะวิเคราะห์ลวดลายและเฉดสีจริง เพื่อเลือกคำทำนายที่ตรงที่สุด</p>
+                    <p id="scan-status" class="text-xs text-purple-500 mt-3 text-center z-10">ระบบจะวิเคราะห์ลวดลายและเฉดสีจริง เพื่อเลือกคำทำนายที่ตรงที่สุด</p>
                 </div>
             </section>
 
@@ -69,40 +96,47 @@
                 
                 <div id="leaves-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
             </section>
+        </div>
 
-            <section id="result-section" class="hidden mt-8 bg-gradient-to-b from-white to-amber-50/40 border-2 border-amber-300 rounded-3xl p-6 shadow-xl shadow-amber-200/30 transition-all duration-500">
+        <div id="result-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-purple-950/60 backdrop-blur-sm transition-all duration-300">
+            <div class="bg-gradient-to-b from-white to-amber-50/60 border-4 border-amber-300 rounded-3xl p-6 max-w-xl w-full shadow-2xl relative transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-y-auto">
+                
+                <button onclick="closeModal()" class="absolute top-3 right-4 text-purple-950 hover:text-red-500 text-2xl font-bold cursor-pointer transition">&times;</button>
+                
                 <div id="prediction-content">
                     <div class="text-center mb-3">
-                        <span class="bg-amber-100 text-amber-800 text-xs font-bold px-4 py-1 rounded-full uppercase tracking-widest font-moo border border-amber-200">คำทำนายมหาเฮง</span>
-                        <h3 id="res-title" class="font-moo text-2xl font-bold text-purple-950 mt-3">ชื่อใบไม้</h3>
+                        <span class="bg-amber-100 text-amber-800 text-xs font-bold px-4 py-1 rounded-full uppercase tracking-widest font-moo border border-amber-200 shadow-sm">🔮 ดวงมหาเฮงของคุณคือ 🔮</span>
+                        <h3 id="res-title" class="font-moo text-3xl font-bold text-purple-950 mt-3 animate-pulse">ชื่อใบไม้</h3>
                     </div>
-                    <div class="h-[1px] bg-amber-300 my-4"></div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs md:text-sm text-stone-700">
-                        <div class="space-y-3 bg-purple-50/50 p-4 rounded-xl border border-purple-100">
+                    <div class="h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent my-4"></div>
+                    <div class="space-y-4 text-xs md:text-sm text-stone-700">
+                        <div class="space-y-2 bg-purple-50/70 p-4 rounded-2xl border border-purple-100">
                             <p><span class="font-semibold text-purple-900">📍 ถิ่นกำเนิดธรรมชาติ:</span> <span id="res-location"></span></p>
                             <p><span class="font-semibold text-purple-900">🎨 โทนสีและอัตลักษณ์บนผ้า:</span> <span id="res-color"></span></p>
                         </div>
-                        <div class="bg-gradient-to-br from-purple-50 to-amber-50 p-4 rounded-xl border border-amber-200">
-                            <p class="font-semibold text-purple-900 font-moo text-sm mb-1">🧠 อุปนิสัยจากจิตวิญญาณใบไม้:</p>
-                            <p id="res-trait" class="mb-3 leading-relaxed text-stone-600"></p>
-                            <p class="font-semibold text-amber-900 font-moo text-sm mb-1">💰 ดวงมงคล / พลังอภิมหาโชค:</p>
-                            <p id="res-fortune" class="text-purple-950 font-bold bg-amber-300/30 p-2 rounded-lg border border-amber-300 text-xs md:text-sm"></p>
+                        <div class="bg-gradient-to-br from-purple-50 to-amber-50 p-4 rounded-2xl border-2 border-amber-200/60 shadow-inner">
+                            <p class="font-semibold text-purple-900 font-moo text-sm mb-1 text-pink-600">🧠 อุปนิสัยจากจิตวิญญาณใบไม้:</p>
+                            <p id="res-trait" class="mb-3 leading-relaxed text-stone-600 font-medium"></p>
+                            <p class="font-semibold text-amber-900 font-moo text-sm mb-1 text-amber-600">💰 ดวงมงคล / พลังอภิมหาโชคประจำวัน:</p>
+                            <p id="res-fortune" class="text-purple-950 font-bold bg-amber-300/40 p-3 rounded-xl border border-amber-300 text-xs md:text-sm leading-relaxed"></p>
                         </div>
                     </div>
                 </div>
 
                 <div id="no-pattern-content" class="hidden text-center py-6">
-                    <div class="text-5xl mb-4">🍂🥺🍂</div>
+                    <div class="text-6xl mb-4 animate-bounce">🍂🥺🍂</div>
                     <h3 class="font-moo text-2xl font-bold text-purple-900 mb-2">แย่จัง... ไม่พบลายใบไม้บนเสื้อ</h3>
-                    <p class="text-stone-600 text-sm max-w-md mx-auto leading-relaxed">
-                        ระบบไม่สามารถตรวจจับเส้นสาย อัตลักษณ์ หรือลายพิมพ์ใบไม้ Eco-print บนเสื้อตัวนี้ได้เลย ลองเปลี่ยนสวมเสื้อที่มีลายพิมพ์ชัดเจน หรือจัดแสงไฟให้สว่างขึ้น แล้วมาลองสแกนเปิดดวงกันใหม่อีกครั้งนะค๊า!
+                    <p class="text-stone-600 text-sm max-w-sm mx-auto leading-relaxed">
+                        ระบบสแกนไม่สามารถตรวจจับเส้นสาย อัตลักษณ์ หรือลายพิมพ์ใบไม้ Eco-print บนเสื้อตัวนี้ได้เลยค๊า! ลองเปลี่ยนมาสวมเสื้อที่มีลายพิมพ์ชัดเจน จัดแสงสว่างๆ แล้วกลับมาสแกนเปิดดวงกันใหม่อีกรอบน้า!
                     </p>
                 </div>
 
                 <div class="text-center mt-6">
-                    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="text-xs text-purple-500 hover:text-purple-700 underline font-medium cursor-pointer">🔮 ลองทำนายเปิดดวงใหม่อีกครั้ง</button>
+                    <button onclick="closeModal()" class="bg-gradient-to-r from-purple-700 to-purple-900 hover:brightness-110 text-white text-xs font-bold py-2.5 px-6 rounded-xl shadow-md cursor-pointer">
+                        🔮 ตกลง รับโชคลาภ
+                    </button>
                 </div>
-            </section>
+            </div>
         </div>
 
         <div id="login-section" class="hidden max-w-md mx-auto bg-white rounded-3xl p-8 border border-purple-100 shadow-xl my-12">
@@ -143,7 +177,7 @@
                         <input type="text" id="form-loc" class="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5 text-stone-800">
                     </div>
                     <div class="sm:col-span-2">
-                        <label class="block text-xs text-purple-900 mb-1">โทนสีผ้าและแท็กสีวิเคราะห์ (เลือกใส่: เขียว / เทา / น้ำตาล / เหลือง)</label>
+                        <label class="block text-xs text-purple-900 mb-1">โทนสีผ้าและแท็กสีวิเคราะห์ (เลือกใส่: เขียว / เทา / น้ำตาล / เหลือง / แดง)</label>
                         <input type="text" id="form-color" class="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5 text-stone-800" placeholder="เช่น ให้สีเขียวขี้ม้าเข้ม [สีหลัก:เขียว]">
                     </div>
                     <div>
@@ -185,15 +219,17 @@
     </footer>
 
     <script>
+        // ข้อมูลอ้างอิงจากรายชื่อใบไม้.docx อย่างสมบูรณ์
         let leavesData = [
-            { name: "ใบหูกวาง", loc: "พบมากตามชายฝั่งทะเลและหาดทราย ภาคใต้และภาคตะวันออก", color: "แกนเหล็ก/น้ำสนิม: ให้สีเขียวขี้ม้าเข้ม หรือ น้ำตาลแกมเขียว", trait: "สายลุย รักอิสระ ปรับตัวเก่ง ทนต่อแรงกดดันได้ดีเหมือนต้นไม้ชายหาด", fortune: "ดวงชีพจรลงเท้า! มีเกณฑ์เดินทางไกลแล้วได้ลาภ หรือมีโชคจากการค้าขายติดต่อคนต่างถิ่น", tag: "เขียว" },
-            { name: "ใบชา", loc: "พบมากในพื้นที่ภูเขาสูงทางภาคเหนือ เช่น เชียงราย เชียงใหม่", color: "แกนเหล็ก/น้ำสนิม: ให้สีเทาเข้ม ถึง เทาดำ", trait: "เซนส์แรง ไหวพริบเฉียบคม เรียนรู้ไว มีความลึกลับและเปี่ยมสเน่ห์", fortune: "ดวงปัญญาและบารมี! ความคิดแล่นเคลียร์ปัญหาค้างคาได้หมดจด คิดงานใหญ่สำเร็จไว", tag: "เทา" },
-            { name: "ใบคอแลน (บักแงว)", loc: "พบมากในพื้นที่ป่าดงดิบและป่าเบญจพรรณในภาคอีสานและภาคเหนือ", color: "แกนเหล็ก/น้ำสนิม: ให้สีเขียวเข้มคล้ำ จนถึงสีดำสนิท", trait: "หนักแน่น จริงใจ ชัดเจน ตรงไปตรงมา รักพวกพ้องและพวกพ้องรักมาก", fortune: "ดวงมหาอุดม! ชีวิตอุดมสมบูรณ์ มีผู้ใหญ่คอยหนุนหลัง เส้นทางชีวิตราบรื่นไร้อุปสรรค", tag: "เทา" },
-            { name: "ใบฝรั่ง", loc: "พบมากในพื้นที่เกษตรกรรมและสวนผลไม้ทั่วทุกภาคของประเทศ", color: "ให้สีน้ำตาลอมเหลือง หรือ น้ำตาลอ่อน", trait: "เข้าถึงง่าย อัธยาศัยดี มีมนุษยสัมพันธ์ดีเยี่ยม อยู่ง่ายกินง่าย", fortune: "ดวงเมตตามหานิยม! ไปที่ไหนก็มีแต่คนรักเอ็นดู เงินทองไหลมาเทมาจากการเจรจา", tag: "น้ำตาล" },
-            { name: "ใบมังคุด", loc: "พบมากที่สุดในพื้นที่ภาคใต้และภาคตะวันออก เช่น จันทบุรี ตราด ชุมพร", color: "ให้สีน้ำตาลแดง หรือ น้ำตาลอมชมพู", trait: "อ่อนโยน มีเมตตา ภายนอกดูนิ่งแต่ภายในมีจุดยืนแข็งแกร่ง รสนิยมดี", fortune: "ดวงความรักและสเน่ห์! ความรักหวานชื่น มีเกณฑ์พบเนื้อคู่ หรือได้รับความชื่นชมยอมรับ", tag: "น้ำตาล" },
-            { name: "ใบเพกา (ลิ้นฟ้า)", loc: "พบมากในป่าเบญจพรรณและป่าดิบแล้งทั่วประเทศ", color: "ย้อมสารส้มได้สีเหลืองหม่น / ย้อมน้ำสนิมเหล็กได้สีเขียวขี้ม้าเข้ม", trait: "รักสงบ สุขุมลุ่มลึก ชอบความเรียบง่าย มีเอกลักษณ์ไม่ซ้ำใคร", fortune: "ดวงสุขภาพและอายุยืน! ปัดเป่าสิ่งไม่ดีและโรคภัยไข้เจ็บ จิตใจสงบและมีสมาธิมากขึ้น", tag: "เขียว" },
-            { name: "ใบยูคาลิปตัส", loc: "พบมากในพื้นที่ปลูกป่าเศรษฐกิจ แถบภาคตะวันออก ภาคอีสาน และภาคกลาง", color: "มีกลิ่นหอมเฉพาะตัว ย้อมสารส้มได้สีส้มอิฐ หรือ น้ำตาลทอง", trait: "สร้างสรรค์ โดดเด่น มีสไตล์ มีเอกลักษณ์และชอบคิดนอกกรอบ", fortune: "ดวงการเงินและโชคลาภ! เงินทองมั่งคั่ง มีชื่อเสียงและผลงานหยิบจับอะไรก็เป็นเงิน", tag: "เหลือง" },
-            { name: "ใบขนุน", loc: "พบทั่วไปในสวนหลังบ้านเรือนทั่วทุกภูมิภาคของไทย", color: "ย้อมสารส้มได้สีเหลืองทอง หรือ เหลืองสด", trait: "รักครอบครัว กตัญญู มีน้ำใจกว้างขวาง เป็นที่พึ่งพาของผู้อื่น", fortune: "ดวงหนุนนำมหาโชค! ทำอะไรก็มีคนคอยช่วยเหลืออุปถัมภ์ จังหวะชีวิตขาขึ้น ไม่มีวันอับจน", tag: "เหลือง" }
+            { name: "ใบหูกวาง", loc: "พบมากตามชายฝั่งทะเลและหาดทราย แถบภาคใต้และภาคตะวันออก", color: "แกนเหล็ก/น้ำสนิม: ให้สีเขียวขี้ม้าเข้ม หรือ น้ำตาลแกมเขียว", trait: "สายลุย รักอิสระ ปรับตัวเก่ง ทนต่อแรงกดดันได้ดีเหมือนต้นไม้ชายหาด", fortune: "ดวงชีพจรลงเท้า! มีเกณฑ์เดินทางไกลแล้วได้ลาภ หรือมีโชคจากการค้าขายติดต่อคนต่างถิ่น", tag: "เขียว" },
+            { name: "ใบชา", loc: "พื้นที่ภูเขาสูงทางภาคเหนือ เช่น จังหวัดเชียงราย เชียงใหม่ และแม่ฮ่องสอน", color: "แกนเหล็ก/น้ำสนิม: ให้สีเทาเข้ม ถึง เทาดำ (ทำปฏิกิริยากับเหล็กไวมาก)", trait: "เซนส์แรง ไหวพริบเฉียบคม เรียนรู้ไว มีความลึกลับและเปี่ยมสเน่ห์", fortune: "ดวงปัญญาและบารมี! ความคิดแล่นเคลียร์ปัญหาค้างคาได้หมดจด คิดงานใหญ่สำเร็จไว", tag: "เทา" },
+            { name: "ใบคอแลน (บักแงว)", loc: "พื้นที่ป่าดงดิบและป่าเบญจพรรณในภาคอีสานและภาคเหนือ มักขึ้นใกล้แหล่งน้ำธรรมชาติ", color: "แกนเหล็ก/น้ำสนิม: ให้สีเขียวเข้มคล้ำ จนถึงสีดำสนิท (เหมาะมากสำหรับงานตัดเส้นลาย)", trait: "หนักแน่น จริงใจ ชัดเจน ตรงไปตรงมา รักพวกพ้องและพวกพ้องรักมาก", fortune: "ดวงมหาอุดม! ชีวิตอุดมสมบูรณ์ มีผู้ใหญ่คอยหนุนหลัง เส้นทางชีวิตราบรื่นไร้อุปสรรค", tag: "เทา" },
+            { name: "ใบฝรั่ง", loc: "พื้นที่เกษตรกรรมและสวนผลไม้ทั่วทุกภาคของประเทศ", color: "ให้สีน้ำตาลอมเหลือง หรือ น้ำตาลอ่อน", trait: "เข้าถึงง่าย อัธยาศัยดี มีมนุษยสัมพันธ์ดีเยี่ยม อยู่ง่ายกินง่าย", fortune: "ดวงเมตตามหานิยม! ไปที่ไหนก็มีแต่คนรักเอ็นดู เงินทองไหลมาเทมาจากการเจรจา", tag: "น้ำตาล" },
+            { name: "ใบมังคุด", loc: "พื้นที่ภาคใต้และภาคตะวันออก เช่น จันทบุรี ตราด นครศรีธรรมราช และชุมพร", color: "ให้สีน้ำตาลแดง หรือ น้ำตาลอมชมพู (เนื่องจากแทนนินทำงานร่วมกับสารสี)", trait: "อ่อนโยน มีเมตตา ภายนอกดูนิ่งแต่ภายในมีจุดยืนแข็งแกร่ง รสนิยมดี", fortune: "ดวงความรักและสเน่ห์! ความรักหวานชื่น มีเกณฑ์พบเนื้อคู่ หรือได้รับความชื่นชมยอมรับ", tag: "น้ำตาล" },
+            { name: "ใบเพกา (ลิ้นฟ้า)", loc: "ป่าเบญจพรรณและป่าดิบแล้งทั่วประเทศ (โดยเฉพาะภาคเหนือและอีสาน)", color: "ย้อมสารส้มได้สีเหลืองหม่น / ย้อมน้ำสนิมเหล็กได้สีเขียวขี้ม้าเข้ม ถึง เขียวอมเทา", trait: "รักสงบ สุขุมลุ่มลึก ชอบความเรียบง่าย มีเอกลักษณ์ไม่ซ้ำใคร", fortune: "ดวงสุขภาพและอายุยืน! ปัดเป่าสิ่งไม่ดีและโรคภัยไข้เจ็บ จิตใจสงบและมีสมาธิมากขึ้น", tag: "เขียว" },
+            { name: "ใบยูคาลิปตัส", loc: "พื้นที่ปลูกป่าเศรษฐกิจ แถบภาคตะวันออก ภาคอีสาน และภาคกลาง", color: "มีกลิ่นหอมเฉพาะตัว ย้อมสารส้มได้สีส้มอิฐ หรือ น้ำตาลทอง / ย้อมสนิมได้สีเทาดำ หรือ เขียวขี้ม้า", trait: "สร้างสรรค์ โดดเด่น มีสไตล์ มีเอกลักษณ์และชอบคิดนอกกรอบ", fortune: "ดวงการเงินและโชคลาภ! เงินทองมั่งคั่ง มีชื่อเสียงและผลงานหยิบจับอะไรก็เป็นเงิน", tag: "เหลือง" },
+            { name: "ใบขนุน", loc: "สวนหลังบ้านเรือนทั่วทุกภูมิภาคของไทย", color: "ย้อมสารส้มได้สีเหลืองทอง หรือ เหลืองสด / ย้อมสนิมเหล็กได้สีเขียวขี้ม้า", trait: "รักครอบครัว กตัญญู มีน้ำใจกว้างขวาง เป็นที่พึ่งพาของผู้อื่น", fortune: "ดวงหนุนนำมหาโชค! ทำอะไรก็มีคนคอยช่วยเหลืออุปถัมภ์ จังหวะชีวิตขาขึ้น ไม่มีวันอับจน", tag: "เหลือง" },
+            { name: "ใบสัก", loc: "พบตามบ้านเรือนในภาคเหนือ ภาคใต้ และภาคกลาง หรือสวนป่าเศรษฐกิจ", color: "ให้สีแดงอมม่วงหรือสีน้ำตาลแดง ลายเส้นใบชัดเจนและติดทนมาก", trait: "บารมีสูงส่ง มีความฉลาดหลักแหลม มีความเป็นผู้นำ มั่นคงเด็ดเดี่ยว", fortune: "ดวงมหาอำนาจและเกียรติยศ! หน้าที่การงานเติบโตก้าวหน้าอย่างมั่นคง วาสนาดีมีคนนับหน้าถือตา", tag: "แดง" }
         ];
 
         window.onload = function() {
@@ -215,17 +251,18 @@
                 const btn = document.createElement('button');
                 btn.className = "p-3 bg-white hover:bg-purple-50 text-purple-950 border border-purple-200 hover:border-purple-400 rounded-2xl font-medium text-xs md:text-sm transition duration-150 cursor-pointer text-center shadow-sm";
                 btn.innerHTML = `🍃 ${leaf.name}`;
-                btn.onclick = () => displayPrediction(leaf);
+                btn.onclick = () => openPredictionPopup(leaf, true);
                 grid.appendChild(btn);
             });
         }
 
-        function displayPrediction(leaf, isFound = true) {
-            const resultSection = document.getElementById('result-section');
+        // 🌟 ฟังก์ชันเปิดหน้าต่างป๊อปอัพคำทำนาย + เอฟเฟกต์พลุ Confetti น่าตื่นเต้น
+        function openPredictionPopup(leaf, isFound = true) {
+            const modal = document.getElementById('result-modal');
             const predContent = document.getElementById('prediction-content');
             const noPatternContent = document.getElementById('no-pattern-content');
             
-            resultSection.classList.remove('hidden');
+            modal.classList.remove('hidden');
             
             if (isFound) {
                 predContent.classList.remove('hidden');
@@ -236,34 +273,48 @@
                 document.getElementById('res-color').innerText = leaf.color;
                 document.getElementById('res-trait').innerText = leaf.trait;
                 document.getElementById('res-fortune').innerText = leaf.fortune;
+                
+                // 🎉 ยิงเอฟเฟกต์พลุกระดาษ Confetti ให้ดูน่าตื่นเต้นสะใจสายมู!
+                confetti({
+                    particleCount: 150,
+                    spread: 80,
+                    origin: { y: 0.6 }
+                });
             } else {
-                // เคสไม่พบลายใบไม้
                 predContent.classList.add('hidden');
                 noPatternContent.classList.remove('hidden');
             }
-            
-            resultSection.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // 👁️ ระบบสแกนเฉดสี + ตรวจสอบความเข้มจางของลวดลายใบไม้
+        function closeModal() {
+            document.getElementById('result-modal').classList.add('hidden');
+        }
+
+        // 👁️ ระบบกล้องสแกนสีจริง + เปิดแอนิเมชันวงเวทย์ทำพิธีมูเตลู
         function startCameraScan() {
             const video = document.getElementById('webcam');
             const icon = document.getElementById('camera-icon');
             const status = document.getElementById('scan-status');
             const canvas = document.getElementById('color-canvas');
+            const magicOverlay = document.getElementById('magic-overlay');
             const ctx = canvas.getContext('2d');
+            const scanBtn = document.getElementById('start-scan-btn');
             
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                status.innerText = "🔮 กำลังค้นหาจิตวิญญาณและลวดลายใบไม้...";
-                status.className = "text-xs text-purple-700 font-semibold mt-2 animate-pulse";
+                status.innerText = "🔮 กำลังเชื่อมต่อกระแสพลังงานกล้องดิจิทัล...";
+                status.className = "text-xs text-purple-700 font-semibold mt-2";
+                scanBtn.disabled = true;
                 
                 navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
                 .then(function(stream) {
                     video.srcObject = stream;
                     video.classList.remove('hidden');
+                    magicOverlay.classList.remove('hidden'); // ✨ แสดงวงเวทย์มูเตลูหมุน ๆ บนจอกล้อง
                     icon.classList.add('hidden');
-                    status.innerText = "👚 ตรวจสอบเนื้อผ้า... กรุณาหันลายใบไม้บนเสื้อให้ตรงหน้ากล้องเพื่อรับพลังงานดวง...";
+                    status.innerText = "👚 ตรวจจับกระบวนการน้ำสนิม/สารส้ม... กรุณาหันลายใบไม้บนผ้าให้ตรงหน้ากล้อง...";
+                    status.className = "text-xs text-purple-700 font-semibold mt-2 animate-pulse";
                     
+                    // ทำพิธีสแกนมูเตลู 4 วินาที
                     setTimeout(() => {
                         ctx.drawImage(video, 0, 0, 100, 100);
                         const imgData = ctx.getImageData(0, 0, 100, 100).data;
@@ -271,7 +322,6 @@
                         let r = 0, g = 0, b = 0;
                         let maxGray = 0, minGray = 255;
                         
-                        // ลูปตรวจพิกเซลเพื่อหาความต่างระดับสี (Contrast/Pattern check)
                         for (let i = 0; i < imgData.length; i += 4) {
                             let currR = imgData[i];
                             let currG = imgData[i+1];
@@ -279,7 +329,6 @@
                             
                             r += currR; g += currG; b += currB;
                             
-                            // หาค่าความสว่างเทาเพื่อใช้วัดการมีลวดลาย
                             let gray = 0.299 * currR + 0.587 * currG + 0.114 * currB;
                             if (gray > maxGray) maxGray = gray;
                             if (gray < minGray) minGray = gray;
@@ -290,26 +339,29 @@
                         g = Math.floor(g / totalPixels);
                         b = Math.floor(b / totalPixels);
 
-                        // คำนวณหาความต่างของสีในภาพ (หากเป็นสีพื้นเรียบๆ ค่าความต่างจะต่ำมาก)
                         let contrast = maxGray - minGray;
 
-                        // ปิดระบบกล้องทันทีหลังดึงภาพเสร็จ
+                        // ปิดระบบกล้องและปิดวงเวทย์ครอบจอ
                         stream.getTracks().forEach(track => track.stop());
                         video.classList.add('hidden');
+                        magicOverlay.classList.add('hidden');
                         icon.classList.remove('hidden');
+                        scanBtn.disabled = false;
 
-                        // 🔍 CRITICAL CHECK: ถ้าความต่างสีน้อยเกินไป (เสื้อสีพื้น/ไม่มีลายใบไม้)
+                        // 🔍 ตรวจสอบว่ามีลวดลายหรือไม่ (ถ้าพื้นเรียบเกินไป คือเสื้อสีพื้น ไม่มีลายใบไม้)
                         if (contrast < 45) { 
-                            status.innerText = "❌ สแกนล้มเหลว: เสื้อของคุณไม่มีลวดลายธรรมชาติ";
+                            status.innerText = "❌ สแกนล้มเหลว: ไม่พบลายใบไม้ตามธรรมชาติบนผืนผ้า";
                             status.className = "text-xs text-red-500 font-semibold mt-2";
-                            displayPrediction(null, false); // ส่งค่า false เพื่อบอกว่าไม่พบลาย
+                            openPredictionPopup(null, false); // เปิดป๊อปอัพเตือนว่าไม่พบลาย
                             return;
                         }
 
-                        // ถ้าผ่านเกณฑ์ (มีลวดลาย) -> แยกเฉดสีแมตช์ใบไม้ต่อ
+                        // คัดแยกกลุ่มโทนสีผ้า Eco-print
                         let matchedTag = "เหลือง";
                         if (g > r && g > b) {
                             matchedTag = "เขียว";
+                        } else if (r > 1.2 * g && b > g && r > 100) {
+                            matchedTag = "แดง"; // ดึงสีสำหรับใบสัก
                         } else if (r > g && b > g && Math.abs(r - b) < 40) {
                             matchedTag = "เทา";
                         } else if (r > g && r > b) {
@@ -321,16 +373,17 @@
                             ? filteredLeaves[Math.floor(Math.random() * filteredLeaves.length)] 
                             : leavesData[Math.floor(Math.random() * leavesData.length)];
                         
-                        status.innerText = `🔮 ตรวจจับกลุ่มลายสี [โทน${matchedTag}] แมตช์ดวงชะตาพบ "${finalLeaf.name}"`;
+                        status.innerText = `🔮 ถอดรหัสเสร็จสิ้น! พบพลังงานใบไม้โทน [${matchedTag}]`;
                         status.className = "text-xs text-emerald-600 font-semibold mt-2";
                         
-                        displayPrediction(finalLeaf, true);
+                        openPredictionPopup(finalLeaf, true); // เปิดป๊อปอัพคำทำนายมหาเฮงพร้อมพลุ
                         
                     }, 4000);
                 })
                 .catch(function(error) {
-                    status.innerText = "❌ ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตให้เว็บเข้าถึงกล้องถ่ายภาพของคุณ";
+                    status.innerText = "❌ ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตสิทธิ์เข้าถึงกล้องถ่ายรูป";
                     status.className = "text-xs text-red-500 mt-2";
+                    scanBtn.disabled = false;
                 });
             }
         }
@@ -365,8 +418,8 @@
                     <td class="p-3 font-semibold text-purple-950">${leaf.name} [โทน:${leaf.tag || 'ทั่วไป'}]</td>
                     <td class="p-3 hidden sm:table-cell max-w-xs truncate">${leaf.color}</td>
                     <td class="p-3 space-x-2">
-                        <button onclick="editLeaf(${index})" class="bg-amber-400 text-purple-950 font-bold px-2.5 py-1 rounded text-xs">แก้ไข</button>
-                        <button onclick="deleteLeaf(${index})" class="bg-red-500 text-white px-2.5 py-1 rounded text-xs">ลบ</button>
+                        <button onclick="editLeaf(${index})" class="bg-amber-400 text-purple-950 font-bold px-2.5 py-1 rounded text-xs cursor-pointer">แก้ไข</button>
+                        <button onclick="deleteLeaf(${index})" class="bg-red-500 text-white px-2.5 py-1 rounded text-xs cursor-pointer">ลบ</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -412,6 +465,7 @@
             if(colorVal.includes("เขียว")) detectedTag = "เขียว";
             else if(colorVal.includes("เทา") || colorVal.includes("ดำ")) detectedTag = "เทา";
             else if(colorVal.includes("น้ำตาล")) detectedTag = "น้ำตาล";
+            else if(colorVal.includes("แดง") || colorVal.includes("ม่วง")) detectedTag = "แดง";
 
             const newLeaf = {
                 name: document.getElementById('form-name').value || "ไม่ระบุชื่อ",
