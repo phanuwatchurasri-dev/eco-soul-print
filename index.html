@@ -13,29 +13,28 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;600;700&family=Chonburi&display=swap" rel="stylesheet">
     <style>
-        /* ธีมโลกเวทมนตร์: พื้นหลังสีครามมืด ตัดกับทองและม่วงลึกลับ */
         body { font-family: 'Anuphan', sans-serif; background-color: #0b0f19; }
         .font-magic { font-family: 'Chonburi', serif; }
         .bg-hogwarts {
             background: radial-gradient(circle at top, #1a1c2e 0%, #0f111a 60%, #07080d 100%);
         }
-        /* แอนิเมชันวงแหวนอักขระเวทมนตร์โบราณ */
+        /* แอนิเมชันวงแหวนอักขระเวทมนตร์โบราณหมุนวน */
         @keyframes magic-spell-rotate {
-            0% { transform: translate(-50%, -50%) rotate(0deg); border-style: dashed; box-shadow: 0 0 15px #eab308; }
-            50% { transform: translate(-50%, -50%) rotate(180deg); border-style: double; box-shadow: 0 0 30px #d97706; }
-            100% { transform: translate(-50%, -50%) rotate(360deg); border-style: dashed; box-shadow: 0 0 15px #eab308; }
+            0% { transform: translate(-50%, -50%) rotate(0deg); border-style: dashed; box-shadow: 0 0 20px #eab308; }
+            50% { transform: translate(-50%, -50%) rotate(180deg); border-style: double; box-shadow: 0 0 40px #d97706; }
+            100% { transform: translate(-50%, -50%) rotate(360deg); border-style: dashed; box-shadow: 0 0 20px #eab308; }
         }
         .magic-spell-ring {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 280px;
-            height: 280px;
+            width: 220px;
+            height: 220px;
             border: 6px double #eab308;
             border-radius: 50%;
-            animation: magic-spell-rotate 8s linear infinite;
+            animation: magic-spell-rotate 4s linear infinite;
             pointer-events: none;
-            opacity: 0.7;
+            z-index: 30;
         }
     </style>
 </head>
@@ -62,7 +61,7 @@
             ถอดรหัสลับตราประทับใบไม้
         </h1>
         <p class="text-slate-400 text-xs md:text-sm leading-relaxed max-w-md mx-auto">
-            จงร่ายมนตร์ส่องกระจกเงาเวทมนตร์เพื่อตรวจจับเฉดสีและลายพิมพ์ Eco-print จากธรรมชาติ แล้วคัมภีร์จะเปิดเผยดวงชะตาและจิตวิญญาณที่ซ่อนอยู่ของคุณ!
+            นำลายพิมพ์ผ้าจ่อเข้าที่กรอบมนตร์สะกด แล้วกดถ่ายภาพเพื่อตรึงวิญญาณพฤกษา คัมภีร์จะร่ายเวททำนายแก่นแท้อุปนิสัยและดวงชะตาของคุณ!
         </p>
     </header>
 
@@ -75,28 +74,50 @@
                 <h2 class="font-magic text-xl font-semibold mb-3 text-amber-300 flex items-center gap-2">
                     🔮 กระจกเงาพยากรณ์สีผ้า (The Divination Mirror)
                 </h2>
-                <p class="text-slate-400 text-xs mb-4">หันผืนผ้าหรือเสื้อพิมพ์ลายใบไม้ Eco-print ของคุณเข้าหากระจกวิเศษ เพื่อเริ่มการถอดรหัสโมเลกุลธาตุและลวดลายคาถา</p>
                 
-                <div class="flex flex-col items-center justify-center border-2 border-amber-500/30 rounded-2xl p-6 bg-black/40 relative overflow-hidden min-h-[340px] shadow-inner">
+                <div class="flex flex-col items-center justify-center border-2 border-amber-500/30 rounded-2xl p-4 bg-black/40 relative overflow-hidden min-h-[360px] shadow-inner">
                     
-                    <!-- พื้นที่แสดงกล้องสำหรับประมวลผล -->
-                    <video id="webcam" autoplay playsinline class="hidden w-full max-w-sm rounded-xl border-4 border-amber-500 shadow-[0_0_20px_rgba(234,179,8,0.3)] relative z-10"></video>
-                    
-                    <!-- 🔮 เอฟเฟกต์แอนิเมชันวงเวทย์ระดับฮอกวอตส์กำลังทำงาน -->
-                    <div id="magic-overlay" class="hidden absolute inset-0 z-20 bg-amber-950/20 pointer-events-none">
-                        <div class="magic-spell-ring"></div>
-                        <div class="absolute top-[12%] left-1/2 -translate-x-1/2 text-amber-200 font-magic text-xs tracking-widest bg-amber-950/90 border border-amber-500/50 px-4 py-1.5 rounded-md animate-pulse shadow-lg">✨ กำลังร่ายมนตร์เปิดเนตรพยากรณ์ ✨</div>
+                    <!-- 1. หน้าจอวิดีโอสดจากกล้อง -->
+                    <div id="video-container" class="hidden relative w-full max-w-sm rounded-xl overflow-hidden border-4 border-amber-600 shadow-[0_0_20px_rgba(234,179,8,0.3)] z-10">
+                        <video id="webcam" autoplay playsinline class="w-full h-auto object-cover"></video>
+                        
+                        <!-- 🎯 กรอบเล็งเวทมนตร์กลางจอ (เพื่อบังคับให้ผู้ใช้เอาลายใบไม้มาจ่อตรงนี้ สีจะได้ไม่เพี้ยน) -->
+                        <div id="focus-box" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-44 h-44 border-4 border-dashed border-amber-400 rounded-2xl pointer-events-none shadow-[0_0_15px_rgba(234,179,8,0.4)] flex items-center justify-center">
+                            <span class="text-[10px] text-amber-300 bg-black/70 px-2 py-0.5 rounded font-magic">ทาบลายตรงนี้</span>
+                        </div>
                     </div>
 
-                    <!-- แคนวาสลับประมวลผล (ซ่อนไว้) -->
-                    <canvas id="color-canvas" class="hidden" width="100" height="100"></canvas>
+                    <!-- 2. หน้าจอแสดงภาพที่ "ถ่ายไว้สำเร็จแล้ว" (Freeze Frame) -->
+                    <div id="photo-container" class="hidden relative w-full max-w-sm rounded-xl overflow-hidden border-4 border-amber-500 z-10">
+                        <canvas id="snapshot-canvas" class="w-full h-auto"></canvas>
+                    </div>
                     
-                    <div id="camera-icon" class="text-5xl mb-4 z-10 filter drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]">📜</div>
+                    <!-- 🔮 เอฟเฟกต์แอนิเมชันร่ายเวทวิเคราะห์รูปภาพ (วงแหวนอักขระ) -->
+                    <div id="magic-overlay" class="hidden absolute inset-0 z-20 bg-amber-950/40 pointer-events-none">
+                        <div class="magic-spell-ring"></div>
+                        <div class="absolute top-[15%] left-1/2 -translate-x-1/2 text-amber-200 font-magic text-xs tracking-widest bg-amber-950 border border-amber-500/60 px-4 py-2 rounded-md animate-pulse shadow-2xl">✨ กำลังถอดรหัสลับอักขระใบไม้... ✨</div>
+                    </div>
+
+                    <!-- แคนวาสขนาดจิ๋วสำหรับให้บอตดูดสี (ซ่อนไว้) -->
+                    <canvas id="analysis-canvas" class="hidden" width="100" height="100"></canvas>
                     
-                    <button id="start-scan-btn" onclick="startCameraScan()" class="bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-700 hover:brightness-110 text-slate-950 font-bold font-magic py-3 px-8 rounded-xl transition duration-200 cursor-pointer shadow-[0_0_15px_rgba(234,179,8,0.4)] text-sm tracking-wider z-10 border border-amber-300/50">
-                        ⚡ ปลุกเสกกระจกสแกนดวงชะตา
-                    </button>
-                    <p id="scan-status" class="text-xs text-amber-400/70 mt-3 text-center z-10 font-medium">รอการกระตุ้นพลังงานเวทมนตร์เพื่อแมตช์คำทำนายโบราณ...</p>
+                    <!-- ไอคอนเริ่มต้น -->
+                    <div id="camera-icon" class="text-6xl mb-4 z-10 filter drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]">📜</div>
+                    
+                    <!-- แถบปุ่มกดทำพิธี -->
+                    <div class="mt-4 z-10 flex flex-col sm:flex-row gap-3 w-full justify-center px-4">
+                        <!-- ปุ่มเปิดกล้อง -->
+                        <button id="start-scan-btn" onclick="startCamera()" class="bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-700 hover:brightness-110 text-slate-950 font-bold font-magic py-3 px-6 rounded-xl transition duration-200 cursor-pointer shadow-lg text-xs md:text-sm tracking-wider border border-amber-300/50">
+                            🔮 เปิดกระจกส่องภาพวิเศษ
+                        </button>
+                        
+                        <!-- ปุ่มกดถ่ายรูป (จะโผล่มาเมื่อเปิดกล้องแล้ว) -->
+                        <button id="capture-btn" onclick="captureAndAnalyze()" class="hidden bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 text-slate-100 font-bold font-magic py-3 px-6 rounded-xl transition duration-200 cursor-pointer shadow-lg text-xs md:text-sm tracking-wider border border-emerald-400/50">
+                            📸 ถ่ายภาพสลักรอยประทับ
+                        </button>
+                    </div>
+
+                    <p id="scan-status" class="text-xs text-amber-400/70 mt-3 text-center z-10 font-medium">กรุณาเปิดกระจกวิเศษเพื่อเริ่มจับสัญญาณพฤกษา...</p>
                 </div>
             </section>
 
@@ -113,10 +134,8 @@
         <div id="result-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-all duration-300">
             <div class="bg-gradient-to-b from-stone-900 via-slate-950 to-stone-950 border-4 border-amber-500 rounded-2xl p-6 max-w-xl w-full shadow-[0_0_50px_rgba(234,179,8,0.3)] relative transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-y-auto">
                 
-                <!-- ปุ่มปิดป๊อปอัพมุมขวาบน -->
                 <button onclick="closeModal()" class="absolute top-3 right-4 text-amber-400 hover:text-red-400 text-2xl font-bold cursor-pointer transition">&times;</button>
                 
-                <!-- เนื้อหาแบบที่ 1: เมื่อพบอักขระลายใบไม้และคัมภีร์เปิดเผยคำทำนาย -->
                 <div id="prediction-content">
                     <div class="text-center mb-3">
                         <span class="bg-amber-950 text-amber-300 text-xs font-bold px-4 py-1 rounded border border-amber-500/40 uppercase tracking-widest font-magic shadow-inner">📜 คัมภีร์พยากรณ์เปิดเผยแล้ว 📜</span>
@@ -137,12 +156,11 @@
                     </div>
                 </div>
 
-                <!-- เนื้อหาแบบที่ 2: เคสศิษย์ลักไก่ ส่องผ้าสีพื้นไม่มีอักขระใบไม้ -->
                 <div id="no-pattern-content" class="hidden text-center py-6">
                     <div class="text-6xl mb-4 animate-bounce">🦉📜❌</div>
-                    <h3 class="font-magic text-2xl font-bold text-amber-400 mb-2">แย่จัง... ไม่พบลายใบไม้บนเสื้อเลย</h3>
+                    <h3 class="font-magic text-2xl font-bold text-amber-400 mb-2">กระจกตรวจจับไม่พบลายพิมพ์ใบไม้</h3>
                     <p class="text-slate-400 text-sm max-w-sm mx-auto leading-relaxed">
-                        กระจกพยากรณ์ไม่สามารถตรวจจับสัญญาณชีพหรือรอยประทับของพฤกษาศาสตร์โบราณบนวัตถุนี้ได้เลย! ลองเปลี่ยนมาสวมเสื้อผ้าที่มีลายพิมพ์เด่นชัด แล้วมาทำพิธีเบิกเนตรกันใหม่อีกครั้งนะพะย่ะค่ะ!
+                        ระบบไม่สามารถจับสัญญาณความต่างสีหรือรอยหยักของพืชวิเศษชิ้นนี้ได้เลย ลองนำผืนผ้าส่วนที่พิมพ์ลายใบไม้ชัดๆ มาจ่อกลางกรอบแล้วกดถ่ายรูปทำพิธีอีกครั้งนะพะย่ะค่ะ!
                     </p>
                 </div>
 
@@ -234,11 +252,11 @@
     </main>
 
     <footer class="text-center py-8 text-slate-600 text-xs border-t border-slate-900/60">
-        ✨🔮 © 2026 Ecoprint Magic Divination - ลิขสิทธิ์ศาสตร์พยากรณ์พฤกษาแห่งปราสาทเวทมนตร์พาสเทลดำ
+        ✨🔮 © 2026 Ecoprint Magic Divination - ลิขสิทธิ์ศาสตร์พยากรณ์พฤกษาแห่งปราสาทเวทมนตร์
     </footer>
 
     <script>
-        // ฐานข้อมูลสารบัญพฤกษาศาสตร์พยากรณ์สมบูรณ์[cite: 1]
+        // ฐานข้อมูลสารบัญพฤกษาศาสตร์พยากรณ์สมบูรณ์
         let leavesData = [
             { name: "ใบหูกวาง", loc: "พบมากตามชายฝั่งทะเลและหาดทราย แถบภาคใต้และภาคตะวันออก", color: "แกนเหล็ก/น้ำสนิม: ให้สีเขียวขี้ม้าเข้ม หรือ น้ำตาลแกมเขียว", trait: "สายลุย รักอิสระ ปรับตัวเก่ง ทนต่อแรงกดดันได้ดีเหมือนต้นไม้ชายหาด", fortune: "ดวงชีพจรลงเท้า! มีเกณฑ์เดินทางไกลแล้วได้ลาภ หรือมีโชคจากการค้าขายติดต่อคนต่างถิ่น", tag: "เขียว" },
             { name: "ใบชา", loc: "พื้นที่ภูเขาสูงทางภาคเหนือ เช่น จังหวัดเชียงราย เชียงใหม่ และแม่ฮ่องสอน", color: "แกนเหล็ก/น้ำสนิม: ให้สีเทาเข้ม ถึง เทาดำ (ทำปฏิกิริยากับเหล็กไวมาก)", trait: "เซนส์แรง ไหวพริบเฉียบคม เรียนรู้ไว มีความลึกลับและเปี่ยมสเน่ห์", fortune: "ดวงปัญญาและบารมี! ความคิดแล่นเคลียร์ปัญหาค้างคาได้หมดจด คิดงานใหญ่สำเร็จไว", tag: "เทา" },
@@ -250,6 +268,8 @@
             { name: "ใบขนุน", loc: "สวนหลังบ้านเรือนทั่วทุกภูมิภาคของไทย", color: "ย้อมสารส้มได้สีเหลืองทอง หรือ เหลืองสด / ย้อมสนิมเหล็กได้สีเขียวขี้ม้า", trait: "รักครอบครัว กตัญญู มีน้ำใจกว้างขวาง เป็นที่พึ่งพาของผู้อื่น", fortune: "ดวงหนุนนำมหาโชค! ทำอะไรก็มีคนคอยช่วยเหลืออุปถัมภ์ จังหวะชีวิตขาขึ้น ไม่มีวันอับจน", tag: "เหลือง" },
             { name: "ใบสัก", loc: "พบตามบ้านเรือนในภาคเหนือ ภาคใต้ และภาคกลาง หรือสวนป่าเศรษฐกิจ", color: "ให้สีแดงอมม่วงหรือสีน้ำตาลแดง ลายเส้นใบชัดเจนและติดทนมาก", trait: "บารมีสูงส่ง มีความฉลาดหลักแหลม มีความเป็นผู้นำ มั่นคงเด็ดเดี่ยว", fortune: "ดวงมหาอำนาจและเกียรติยศ! หน้าที่การงานเติบโตก้าวหน้าอย่างมั่นคง วาสนาดีมีคนนับหน้าถือตา", tag: "แดง" }
         ];
+
+        let localStream = null;
 
         window.onload = function() {
             renderUserGrid();
@@ -275,7 +295,147 @@
             });
         }
 
-        // 🌟 เปิดหน้าต่างคัมภีร์เวทมนตร์โบราณ + สาดละอองดาวทองคำ (Cosmic Gold Confetti Effect)
+        // 👁️ สเตปที่ 1: เปิดระบบกล้องเรียลไทม์ (ยังไม่วิเคราะห์ทันที)
+        function startCamera() {
+            const video = document.getElementById('webcam');
+            const icon = document.getElementById('camera-icon');
+            const status = document.getElementById('scan-status');
+            const videoContainer = document.getElementById('video-container');
+            const photoContainer = document.getElementById('photo-container');
+            const startBtn = document.getElementById('start-scan-btn');
+            const captureBtn = document.getElementById('capture-btn');
+            
+            photoContainer.classList.add('hidden');
+            
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                status.innerText = "⚡ กำลังเปิดเชื่อมต่อพลังงานกระจกวิเศษ...";
+                
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+                .then(function(stream) {
+                    localStream = stream;
+                    video.srcObject = stream;
+                    videoContainer.classList.remove('hidden');
+                    icon.classList.add('hidden');
+                    startBtn.classList.add('hidden');
+                    captureBtn.classList.remove('hidden');
+                    
+                    status.innerText = "🔮 นำลวดลายใบไม้บนผ้ามาจ่อตรงกลาง 'กรอบมนตร์สะกด' แล้วกดถ่ายภาพ";
+                    status.className = "text-xs text-amber-300 font-semibold mt-3 animate-pulse";
+                })
+                .catch(function(error) {
+                    status.innerText = "❌ กระจกเวทมนตร์ถูกบล็อก กรุณาอนุญาตสิทธิ์เข้าถึงกล้อง";
+                    status.className = "text-xs text-red-400 mt-3";
+                });
+            }
+        }
+
+        // 📸 สเตปที่ 2 & 3: กดถ่ายภาพ ตรึงหน้าจอ และร่ายเอฟเฟกต์วงเวทย์วิเคราะห์
+        function captureAndAnalyze() {
+            const video = document.getElementById('webcam');
+            const snapCanvas = document.getElementById('snapshot-canvas');
+            const analysisCanvas = document.getElementById('analysis-canvas');
+            const videoContainer = document.getElementById('video-container');
+            const photoContainer = document.getElementById('photo-container');
+            const magicOverlay = document.getElementById('magic-overlay');
+            const status = document.getElementById('scan-status');
+            const captureBtn = document.getElementById('capture-btn');
+            const startBtn = document.getElementById('start-scan-btn');
+
+            if (!localStream) return;
+
+            // 1. ตรึงภาพวิดีโอลงใน Canvas โชว์ให้ผู้ใช้เห็นว่าถ่ายรูปเสร็จแล้ว
+            snapCanvas.width = video.videoWidth;
+            snapCanvas.height = video.videoHeight;
+            const snapCtx = snapCanvas.getContext('2d');
+            snapCtx.drawImage(video, 0, 0, snapCanvas.width, snapCanvas.height);
+            
+            // สลับโหมดการแสดงผลจากวิดีโอสด เป็นรูปนิ่งที่เพิ่งถ่าย
+            videoContainer.classList.add('hidden');
+            photoContainer.classList.remove('hidden');
+            captureBtn.classList.add('hidden');
+            
+            // 2. แสดงเอฟเฟกต์วงแหวนเวทมนตร์หมุนวนรอบจอรูปภาพ
+            magicOverlay.classList.remove('hidden');
+            status.innerText = "⚡ ตรึงรอยพิมพ์สำเร็จ! กำลังร่ายคาถาตรวจวัดโมเลกุลธาตุพืชวิเศษ...";
+            status.className = "text-xs text-amber-400 font-bold mt-3 animate-bounce";
+
+            // หยุดการทำงานของกล้องวิดีโอสดทันทีเพื่อประหยัดแบตเตอรี่
+            localStream.getTracks().forEach(track => track.stop());
+
+            // 3. ปล่อยให้เอฟเฟกต์เวทมนตร์แสดงผล 3 วินาที เพื่อสร้างฟิลลิ่งแฮรี่ พอตเตอร์ ก่อนคำนวณจริง
+            setTimeout(() => {
+                const analysisCtx = analysisCanvas.getContext('2d');
+                
+                // ดึงพิกเซลเฉพาะ "บริเวณกึ่งกลางภาพถ่าย" (ขนาด 150x150 พิกเซล ตรงกับกรอบเล็งพอดี) เพื่อลดสัญญาณรบกวนรอบข้าง
+                const cropSize = 150;
+                const sourceX = (snapCanvas.width / 2) - (cropSize / 2);
+                const sourceY = (snapCanvas.height / 2) - (cropSize / 2);
+                
+                analysisCanvas.width = cropSize;
+                analysisCanvas.height = cropSize;
+                analysisCtx.drawImage(snapCanvas, sourceX, sourceY, cropSize, cropSize, 0, 0, cropSize, cropSize);
+                
+                const imgData = analysisCtx.getImageData(0, 0, cropSize, cropSize).data;
+                
+                let r = 0, g = 0, b = 0;
+                let maxGray = 0, minGray = 255;
+                
+                // วนลูปอ่านค่าพิกเซลทั้งหมดเพื่อหาเฉดสีเฉลี่ย และเช็กค่าความต่างสี (Contrast)
+                for (let i = 0; i < imgData.length; i += 4) {
+                    let currR = imgData[i];
+                    let currG = imgData[i+1];
+                    let currB = imgData[i+2];
+                    
+                    r += currR; g += currG; b += currB;
+                    
+                    let gray = 0.299 * currR + 0.587 * currG + 0.114 * currB;
+                    if (gray > maxGray) maxGray = gray;
+                    if (gray < minGray) minGray = gray;
+                }
+                
+                let totalPixels = imgData.length / 4;
+                r = Math.floor(r / totalPixels);
+                g = Math.floor(g / totalPixels);
+                b = Math.floor(b / totalPixels);
+
+                let contrast = maxGray - minGray;
+
+                // รีเซ็ตการตั้งค่าหน้าจอให้พร้อมสำหรับการเริ่มใหม่รอบหน้า
+                magicOverlay.classList.add('hidden');
+                startBtn.classList.remove('hidden');
+                status.innerText = "รอทำพิธีเบิกเนตรพยากรณ์ครั้งถัดไป...";
+                status.className = "text-xs text-slate-400 mt-3 text-center";
+
+                // 🔍 ด่านคัดกรอง: ถ้าความต่างสีตรงกลางกรอบต่ำกว่า 45 แปลว่าผู้ใช้ถ่ายโดนผ้าสีพื้น ไม่มีลายใบไม้
+                if (contrast < 45) { 
+                    openPredictionPopup(null, false);
+                    return;
+                }
+
+                // ถอดสูตรธาตุสีพฤกษาศาสตร์จากรอยประทับที่ถ่ายได้
+                let matchedTag = "เหลือง";
+                if (g > r && g > b) {
+                    matchedTag = "เขียว";
+                } else if (r > 1.2 * g && b > g && r > 100) {
+                    matchedTag = "แดง";
+                } else if (r > g && b > g && Math.abs(r - b) < 40) {
+                    matchedTag = "เทา";
+                } else if (r > g && r > b) {
+                    matchedTag = "น้ำตาล";
+                }
+
+                const filteredLeaves = leavesData.filter(l => l.tag === matchedTag);
+                const finalLeaf = filteredLeaves.length > 0 
+                    ? filteredLeaves[Math.floor(Math.random() * filteredLeaves.length)] 
+                    : leavesData[Math.floor(Math.random() * leavesData.length)];
+                
+                // สั่งเปิดคัมภีร์เวทมนตร์ป๊อปอัพพร้อมพลุละอองดาวสีทอง!
+                openPredictionPopup(finalLeaf, true);
+                
+            }, 3000); // ⏱️ ตั้งเวลาให้เอฟเฟกต์หมุนโชว์ความลึกลับ 3 วินาที
+        }
+
+        // 🌟 เปิดหน้าต่างคัมภีร์เวทมนตร์โบราณ + สาดละอองดาวทองคำ
         function openPredictionPopup(leaf, isFound = true) {
             const modal = document.getElementById('result-modal');
             const predContent = document.getElementById('prediction-content');
@@ -293,29 +453,14 @@
                 document.getElementById('res-trait').innerText = leaf.trait;
                 document.getElementById('res-fortune').innerText = leaf.fortune;
                 
-                // ✨ สาดเอฟเฟกต์ละอองเวทมนตร์ดาวสีทองพุ่งกระจายอย่างหรูหรา
-                let end = Date.now() + (1 * 1000);
+                // ✨ สาดเอฟเฟกต์ละอองเวทมนตร์ดาวสีทองกระจายออกจากขอบข้างจออย่างหรูหรา
+                let end = Date.now() + (1.2 * 1000);
                 let colors = ['#fcd34d', '#fbbf24', '#d97706', '#ffffff'];
 
                 (function frame() {
-                    confetti({
-                        particleCount: 4,
-                        angle: 60,
-                        spread: 55,
-                        origin: { x: 0 },
-                        colors: colors
-                    });
-                    confetti({
-                        particleCount: 4,
-                        angle: 120,
-                        spread: 55,
-                        origin: { x: 1 },
-                        colors: colors
-                    });
-
-                    if (Date.now() < end) {
-                        requestAnimationFrame(frame);
-                    }
+                    confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 }, colors: colors });
+                    confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 }, colors: colors });
+                    if (Date.now() < end) { requestAnimationFrame(frame); }
                 }());
             } else {
                 predContent.classList.add('hidden');
@@ -325,104 +470,8 @@
 
         function closeModal() {
             document.getElementById('result-modal').classList.add('hidden');
-        }
-
-        // 👁️ ระบบกระจกพยากรณ์วิเคราะห์โครงสร้างเวทมนตร์ใบไม้
-        function startCameraScan() {
-            const video = document.getElementById('webcam');
-            const icon = document.getElementById('camera-icon');
-            const status = document.getElementById('scan-status');
-            const canvas = document.getElementById('color-canvas');
-            const magicOverlay = document.getElementById('magic-overlay');
-            const ctx = canvas.getContext('2d');
-            const scanBtn = document.getElementById('start-scan-btn');
-            
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                status.innerText = "⚡ กำลังเปิดประตูเชื่อมต่อพลังงานกล้องเวทมนตร์...";
-                status.className = "text-xs text-amber-400 font-medium mt-2";
-                scanBtn.disabled = true;
-                
-                navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-                .then(function(stream) {
-                    video.srcObject = stream;
-                    video.classList.remove('hidden');
-                    magicOverlay.classList.remove('hidden'); // ✨ ปลุกอักขระเวทมนตร์ครอบจอ
-                    icon.classList.add('hidden');
-                    status.innerText = "🔮 กำลังถอดรหัสและดึงแทนนินพฤกษาศาสตร์... กรุณาถือผืนผ้าให้นิ่ง...";
-                    status.className = "text-xs text-amber-300 font-semibold mt-2 animate-pulse";
-                    
-                    // ร่ายคาถาวิเคราะห์โมเลกุลผ้า 4 วินาที
-                    setTimeout(() => {
-                        ctx.drawImage(video, 0, 0, 100, 100);
-                        const imgData = ctx.getImageData(0, 0, 100, 100).data;
-                        
-                        let r = 0, g = 0, b = 0;
-                        let maxGray = 0, minGray = 255;
-                        
-                        for (let i = 0; i < imgData.length; i += 4) {
-                            let currR = imgData[i];
-                            let currG = imgData[i+1];
-                            let currB = imgData[i+2];
-                            
-                            r += currR; g += currG; b += currB;
-                            
-                            let gray = 0.299 * currR + 0.587 * currG + 0.114 * currB;
-                            if (gray > maxGray) maxGray = gray;
-                            if (gray < minGray) minGray = gray;
-                        }
-                        
-                        let totalPixels = imgData.length / 4;
-                        r = Math.floor(r / totalPixels);
-                        g = Math.floor(g / totalPixels);
-                        b = Math.floor(b / totalPixels);
-
-                        let contrast = maxGray - minGray;
-
-                        // ปิดระบบกระจกพยากรณ์และปลดคาถาหน้าจอ
-                        stream.getTracks().forEach(track => track.stop());
-                        video.classList.add('hidden');
-                        magicOverlay.classList.add('hidden');
-                        icon.classList.remove('hidden');
-                        scanBtn.disabled = false;
-
-                        // 🔍 ตรวจจับรอยประทับใบไม้ (หากเป็นเสื้อสีเรียบพื้นไร้ลาย คอนทราสต์จะต่ำมาก)
-                        if (contrast < 45) { 
-                            status.innerText = "❌ คาถาล้มเหลว: ไม่พบลายพิมพ์ใบไม้ศักดิ์สิทธิ์บนเสื้อ";
-                            status.className = "text-xs text-red-400 font-semibold mt-2";
-                            openPredictionPopup(null, false); // เปิดคัมภีร์เตือนว่าไร้รอยพิมพ์
-                            return;
-                        }
-
-                        // ถอดสูตรธาตุสีพฤกษาศาสตร์
-                        let matchedTag = "เหลือง";
-                        if (g > r && g > b) {
-                            matchedTag = "เขียว";
-                        } else if (r > 1.2 * g && b > g && r > 100) {
-                            matchedTag = "แดง";
-                        } else if (r > g && b > g && Math.abs(r - b) < 40) {
-                            matchedTag = "เทา";
-                        } else if (r > g && r > b) {
-                            matchedTag = "น้ำตาล";
-                        }
-
-                        const filteredLeaves = leavesData.filter(l => l.tag === matchedTag);
-                        const finalLeaf = filteredLeaves.length > 0 
-                            ? filteredLeaves[Math.floor(Math.random() * filteredLeaves.length)] 
-                            : leavesData[Math.floor(Math.random() * leavesData.length)];
-                        
-                        status.innerText = `🔮 ถอดอักขระสำเร็จ! ตราประทับตรงกับธาตุสี [โทน${matchedTag}]`;
-                        status.className = "text-xs text-emerald-400 font-semibold mt-2";
-                        
-                        openPredictionPopup(finalLeaf, true); // เปิดคัมภีร์คำทำนายโบราณพร้อมละอองดาวทอง
-                        
-                    }, 4000);
-                })
-                .catch(function(error) {
-                    status.innerText = "❌ กระจกเวทมนตร์ถูกบล็อก กรุณาอนุญาตสิทธิ์เข้าถึงกล้อง";
-                    status.className = "text-xs text-red-400 mt-2";
-                    scanBtn.disabled = false;
-                });
-            }
+            document.getElementById('photo-container').classList.add('hidden');
+            document.getElementById('camera-icon').classList.remove('hidden');
         }
 
         // ---------------- ระบบจัดการห้องสมุดคลังเวทมนตร์ (Admin) ----------------
