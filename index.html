@@ -3,113 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eco-Soul Print 🔮 ถอดรหัสดวงชะตาจากผืนผ้า</title>
-    <!-- นำเข้า Tailwind CSS สำหรับตกแต่งหน้าเว็บ -->
+    <title>Ecoprint Mutelu 🔮 ถอดรหัสผ้าพิมพ์ใบไม้ เปิดดวงมหาเฮง</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;600;700&family=Chonburi&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Anuphan', sans-serif; background-color: #f4f1ea; }
+        body { font-family: 'Anuphan', sans-serif; background-color: #1e1233; }
+        .font-moo { font-family: 'Chonburi', serif; }
+        /* ตกแต่งพื้นหลังสไตล์อวกาศ/สายมู */
+        .bg-moo-gradient {
+            background: radial-gradient(circle at top, #3b1e6d 0%, #1a0b36 70%);
+        }
     </style>
 </head>
-<body class="text-gray-800">
+<body class="text-stone-100 bg-moo-gradient min-h-screen">
 
-    <!-- Header -->
-    <header class="bg-emerald-800 text-white text-center py-8 px-4 shadow-md">
-        <h1 class="text-3xl font-bold mb-2">🔮 Eco-Soul Print</h1>
-        <p class="text-emerald-100 text-sm">ค้นหาตัวตนและดวงมงคล ผ่านลวดลายและโทนสีของใบไม้บนผ้า Eco-print</p>
+    <nav class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center border-b border-purple-900/40">
+        <div class="flex items-center gap-2">
+            <span class="text-2xl">🔮</span>
+            <span class="font-moo text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-pink-500">Ecoprint Mutelu</span>
+        </div>
+        <button id="nav-login-btn" onclick="toggleSection('login-section')" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-semibold py-2 px-4 rounded-full transition duration-200 cursor-pointer shadow-lg shadow-purple-900/50">
+            🔒 สำหรับผู้ดูแลระบบ
+        </button>
+        <button id="nav-logout-btn" onclick="handleLogout()" class="hidden bg-red-600 hover:bg-red-500 text-white text-xs font-semibold py-2 px-4 rounded-full transition duration-200 cursor-pointer">
+            🚪 ออกจากระบบ
+        </button>
+    </nav>
+
+    <header class="text-center py-12 px-4 max-w-2xl mx-auto">
+        <span class="text-sm font-bold tracking-widest text-amber-400 uppercase bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/30">ศาสตร์แห่งธรรมชาติและดวงชะตา</span>
+        <h1 class="font-moo text-4xl md:text-5xl font-bold my-4 text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-pink-400 to-purple-400 drop-shadow-sm">
+            Ecoprint Mutelu
+        </h1>
+        <p class="text-purple-200 text-sm md:text-base leading-relaxed">
+            เปลี่ยนลวดลายและโทนสีของใบไม้บนผืนผ้า Eco-print ให้กลายเป็นคำทำนายดวงมงคลสุดปัง! สแกนเสื้อของคุณเพื่อเปิดประตูรับโชคลาภได้เลย
+        </p>
     </header>
 
-    <main class="max-w-4xl mx-auto p-4 my-6">
+    <main class="max-w-4xl mx-auto p-4 mb-20">
         
-        <!-- ส่วนที่ 1: โหมดสแกนเสื้อ/ถ่ายรูป -->
-        <section class="bg-white rounded-2xl p-6 shadow-sm mb-6 border border-stone-200">
-            <h2 class="text-xl font-semibold mb-4 text-emerald-800 flex items-center gap-2">
-                📸 โหมดแชะแล้วทาย (Scan Eco-print Shirt)
-            </h2>
-            <p class="text-gray-600 text-sm mb-4">สวมเสื้อผ้า Eco-print ของคุณ ถ่ายรูปหรือเปิดกล้อง เพื่อให้ระบบวิเคราะห์ลวดลายและโทนสีผิวผ้า</p>
-            
-            <div class="flex flex-col items-center justify-center border-2 border-dashed border-stone-300 rounded-xl p-8 bg-stone-50">
-                <!-- พื้นที่แสดงกล้อง (จะซ่อนไว้จนกว่าจะกดเปิด) -->
-                <video id="webcam" autoplay playsinline class="hidden w-full max-w-sm rounded-lg mb-4 border border-stone-300"></video>
+        <div id="user-main-view">
+            <section class="bg-purple-950/40 backdrop-blur-md rounded-3xl p-6 shadow-2xl mb-8 border border-purple-500/20">
+                <h2 class="font-moo text-xl font-semibold mb-4 text-amber-300 flex items-center gap-2">
+                    📸 โหมดแชะเปิดดวง (Scan Eco-Shirt)
+                </h2>
+                <p class="text-purple-200 text-xs md:text-sm mb-4">สวมเสื้อผ้า Eco-print ของคุณ แล้วเปิดกล้องสแกนระบบจะคำนวณพลังมงคลจากสีกระบวนการน้ำสนิม/สารส้มทันที</p>
                 
-                <svg id="camera-icon" class="w-12 h-12 text-stone-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <div class="flex flex-col items-center justify-center border-2 border-dashed border-purple-500/30 rounded-2xl p-8 bg-purple-950/30 relative overflow-hidden">
+                    <video id="webcam" autoplay playsinline class="hidden w-full max-w-sm rounded-xl mb-4 border-2 border-amber-400/50 shadow-lg shadow-amber-500/20"></video>
+                    
+                    <div id="camera-icon" class="text-4xl mb-3 animate-bounce">✨👕✨</div>
+                    
+                    <button onclick="startCameraScan()" class="bg-gradient-to-r from-amber-500 via-orange-500 to-pink-500 hover:brightness-110 text-purple-950 font-bold py-3 px-8 rounded-xl transition duration-200 cursor-pointer shadow-lg shadow-orange-500/20 text-sm tracking-wider">
+                        เปิดกล้องสแกนเสื้อรับโชค
+                    </button>
+                    <p id="scan-status" class="text-xs text-purple-300 mt-3 text-center">ระบบจะขออนุญาตเข้าถึงกล้องหลังเพื่อสแกนจับพลังงานใบไม้บนผ้า</p>
+                </div>
+            </section>
+
+            <section class="bg-purple-950/40 backdrop-blur-md rounded-3xl p-6 shadow-2xl border border-purple-500/20">
+                <h2 class="font-moo text-xl font-semibold mb-2 text-amber-300">🍁 เลือกใบไม้ที่ดึงดูดใจเพื่อทำนายตัวตน</h2>
+                <p class="text-purple-200 text-xs md:text-sm mb-6">คลิกเลือกใบไม้ที่คุณชื่นชอบหรือมักจะนำมาทำผ้า Eco-print เพื่อถอดรหัสลับชะตาชีวิต</p>
                 
-                <button onclick="startCameraScan()" class="bg-emerald-700 hover:bg-emerald-600 text-white font-medium py-2.5 px-6 rounded-lg transition duration-200 cursor-pointer shadow-sm">
-                    กดเพื่อเปิดกล้องสแกนเสื้อ
-                </button>
-                <p id="scan-status" class="text-xs text-stone-500 mt-2">ระบบจะขออนุญาตเข้าถึงกล้องหลังเพื่อสแกนสีผ้า</p>
-            </div>
-        </section>
+                <div id="leaves-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
+            </section>
 
-        <!-- ส่วนที่ 2: โหมดเลือกใบไม้ด้วยตนเอง -->
-        <section class="bg-white rounded-2xl p-6 shadow-sm border border-stone-200">
-            <h2 class="text-xl font-semibold mb-2 text-emerald-800">🍁 หรือเลือกใบไม้ที่คุณชอบเพื่อทำนาย</h2>
-            <p class="text-gray-600 text-sm mb-6">คลิกเลือกใบไม้ที่คุณมักจะใช้พิมพ์ผ้า หรือใบไม้ที่ดึงดูดใจคุณมากที่สุดในตอนนี้</p>
+            <section id="result-section" class="hidden mt-8 bg-gradient-to-b from-purple-900 to-indigo-950 border-2 border-amber-400 rounded-3xl p-6 shadow-2xl shadow-amber-500/10 transition-all duration-500">
+                <div class="text-center mb-4">
+                    <span class="bg-amber-400 text-purple-950 text-xs font-bold px-4 py-1 rounded-full uppercase tracking-widest font-moo shadow-sm">คำทำนายมหาเฮง</span>
+                    <h3 id="res-title" class="font-moo text-3xl font-bold text-amber-300 mt-3">ชื่อใบไม้</h3>
+                </div>
+                <div class="h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent my-4"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div class="space-y-3 bg-purple-950/40 p-4 rounded-xl border border-purple-500/10">
+                        <p><span class="font-semibold text-amber-400">📍 ถิ่นกำเนิดธรรมชาติ:</span> <span id="res-location" class="text-purple-100"></span></p>
+                        <p><span class="font-semibold text-amber-400">🎨 โทนสีและอัตลักษณ์บนผ้า:</span> <span id="res-color" class="text-purple-100"></span></p>
+                    </div>
+                    <div class="bg-gradient-to-br from-amber-500/10 to-pink-500/10 p-5 rounded-xl border border-amber-400/30">
+                        <p class="font-semibold text-pink-300 font-moo text-base mb-2">🧠 อุปนิสัยจากจิตวิญญาณใบไม้:</p>
+                        <p id="res-trait" class="text-purple-100 mb-4 leading-relaxed"></p>
+                        <p class="font-semibold text-amber-400 font-moo text-base mb-1">💰 ดวงมงคล / พลังอภิมหาโชค:</p>
+                        <p id="res-fortune" class="text-amber-300 font-bold text-base bg-amber-400/10 p-2.5 rounded-lg border border-amber-400/20"></p>
+                    </div>
+                </div>
+                <div class="text-center mt-6">
+                    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="text-xs text-purple-300 hover:text-amber-300 underline font-medium cursor-pointer">🔮 ลองทำนายเปิดดวงใหม่อีกครั้ง</button>
+                </div>
+            </section>
+        </div>
+
+
+        <div id="login-section" class="hidden max-w-md mx-auto bg-purple-950/60 backdrop-blur-md rounded-3xl p-8 border border-purple-500/30 shadow-2xl my-12">
+            <h2 class="font-moo text-2xl font-bold text-center text-amber-300 mb-2">🔒 ระบบผู้ดูแลระบบ</h2>
+            <p class="text-purple-200 text-xs text-center mb-6">กรุณากรอกรหัสผ่านเพื่อเข้าสู่ระบบจัดการข้อมูลใบไม้</p>
             
-            <div id="leaves-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
-        </section>
-
-        <!-- ส่วนที่ 3: หน้าต่างแสดงผลคำทำนาย -->
-        <section id="result-section" class="hidden mt-8 bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 rounded-2xl p-6 shadow-lg transition-all duration-500">
-            <div class="text-center mb-4">
-                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">ผลลัพธ์คำทำนาย</span>
-                <h3 id="res-title" class="text-2xl font-bold text-stone-800 mt-2">ชื่อใบไม้</h3>
-            </div>
-            <hr class="border-amber-200 my-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div class="space-y-4">
                 <div>
-                    <p class="font-semibold text-emerald-900">📍 แหล่งที่พบตามธรรมชาติ:</p>
-                    <p id="res-location" class="text-gray-700 mb-3">ข้อมูลแหล่งพบ</p>
-                    <p class="font-semibold text-emerald-900">🎨 อัตลักษณ์โทนสีบนผ้า:</p>
-                    <p id="res-color" class="text-gray-700">ข้อมูลโทนสี</p>
+                    <label class="block text-xs font-semibold text-purple-300 mb-1">รหัสผ่านสำหรับแอดมิน</label>
+                    <input type="password" id="admin-password" class="w-full bg-purple-900/50 border border-purple-500/30 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-400" placeholder="กรอกรหัสผ่าน (ลองพิมพ์ 1234)">
                 </div>
-                <div class="bg-white p-4 rounded-xl border border-amber-100">
-                    <p class="font-semibold text-amber-900 text-base mb-1">🧠 ลักษณะนิสัยของคุณ:</p>
-                    <p id="res-trait" class="text-gray-800 font-medium mb-3">คำอธิบายนิสัย</p>
-                    <p class="font-semibold text-amber-900 text-base mb-1">✨ ดวงมงคล / พลังที่จะได้รับ:</p>
-                    <p id="res-fortune" class="text-emerald-800 font-bold">คำทำนายดวง</p>
+                <p id="login-error" class="text-xs text-red-400 hidden">⚠️ รหัสผ่านไม่ถูกต้อง ลองใหม่อีกครั้ง</p>
+                <div class="flex gap-2 pt-2">
+                    <button onclick="toggleSection('user-main-view')" class="w-1/2 bg-purple-900/60 text-purple-200 text-sm font-semibold py-3 rounded-xl hover:bg-purple-900 cursor-pointer">ยกเลิก</button>
+                    <button onclick="handleLogin()" class="w-1/2 bg-gradient-to-r from-amber-500 to-pink-500 text-purple-950 text-sm font-bold py-3 rounded-xl hover:brightness-110 cursor-pointer">เข้าสู่ระบบ</button>
                 </div>
             </div>
-            <div class="text-center mt-6">
-                <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="text-sm text-emerald-800 underline font-medium cursor-pointer">ลองทำนายใหม่อีกครั้ง</button>
+        </div>
+
+
+        <div id="admin-dashboard" class="hidden space-y-6">
+            <div class="flex justify-between items-center bg-purple-950/60 p-4 rounded-2xl border border-purple-500/20">
+                <div>
+                    <h2 class="font-moo text-xl font-bold text-amber-300">🛠️ แผงจัดการข้อมูลมูเตลู</h2>
+                    <p class="text-purple-200 text-xs">คุณสามารถ เพิ่ม ลด หรือแก้ไขข้อมูลใบไม้และคำทำนายได้จากหน้านี้</p>
+                </div>
+                <button onclick="showAddForm()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2.5 px-4 rounded-xl cursor-pointer">➕ เพิ่มใบไม้ใหม่</button>
             </div>
-        </section>
+
+            <div id="leaf-form-container" class="hidden bg-purple-900/40 p-6 rounded-2xl border-2 border-purple-500/30 space-y-4">
+                <h3 id="form-title" class="font-moo text-lg font-bold text-amber-300">เพิ่มใบไม้ใหม่</h3>
+                <input type="hidden" id="form-edit-index">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <label class="block text-xs text-purple-300 mb-1">ชื่อใบไม้</label>
+                        <input type="text" id="form-name" class="w-full bg-purple-950/80 border border-purple-500/30 rounded-xl p-2.5 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-purple-300 mb-1">แหล่งที่พบ</label>
+                        <input type="text" id="form-loc" class="w-full bg-purple-950/80 border border-purple-500/30 rounded-xl p-2.5 text-white">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs text-purple-300 mb-1">โทนสีและปฏิกิริยาบนผ้า</label>
+                        <input type="text" id="form-color" class="w-full bg-purple-950/80 border border-purple-500/30 rounded-xl p-2.5 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-purple-300 mb-1">คำทำนายนิสัย</label>
+                        <textarea id="form-trait" rows="2" class="w-full bg-purple-950/80 border border-purple-500/30 rounded-xl p-2.5 text-white"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-purple-300 mb-1">คำทำนายดวงมงคล</label>
+                        <textarea id="form-fortune" rows="2" class="w-full bg-purple-950/80 border border-purple-500/30 rounded-xl p-2.5 text-white"></textarea>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2 text-xs">
+                    <button onclick="document.getElementById('leaf-form-container').classList.add('hidden')" class="bg-purple-950 text-purple-200 px-4 py-2 rounded-lg">ยกเลิก</button>
+                    <button onclick="saveLeafData()" class="bg-amber-400 text-purple-950 font-bold px-5 py-2 rounded-lg">💾 บันทึกข้อมูล</button>
+                </div>
+            </div>
+
+            <div class="bg-purple-950/40 rounded-2xl border border-purple-500/20 overflow-hidden">
+                <table class="w-full text-left text-xs md:text-sm">
+                    <thead class="bg-purple-900/60 text-amber-300">
+                        <tr>
+                            <th class="p-3">ชื่อใบไม้</th>
+                            <th class="p-3 hidden sm:table-cell">โทนสีผ้า</th>
+                            <th class="p-3">การจัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-table-body" class="divide-y divide-purple-900/40">
+                        </tbody>
+                </table>
+            </div>
+            
+            <div class="text-center">
+                <button onclick="toggleSection('user-main-view')" class="text-xs text-purple-300 hover:text-amber-300 underline">กลับสู่หน้าหลักของผู้ใช้</button>
+            </div>
+        </div>
 
     </main>
 
-    <footer class="text-center py-8 text-stone-500 text-xs">
-        © 2026 Eco-Soul Print App - พลังมงคลจากธรรมชาติและผืนผ้า
+    <footer class="text-center py-8 text-purple-400/40 text-xs border-t border-purple-950/60">
+        🔮 © 2026 Ecoprint Mutelu - พลังใบไม้มงคลเปิดทรัพย์รับโชคลาภ
     </footer>
 
-    <!-- ฐานข้อมูลตามไฟล์ รายชื่อใบไม้.docx และระบบประมวลผล -->
     <script>
-        const leavesData = [
-            { id: "หูกวาง", name: "ใบหูกวาง", loc: "พบมากที่สุดตามบริเวณชายฝั่งทะเลและหาดทราย โดยเฉพาะจังหวัดแถบภาคใต้ และภาคตะวันออก[cite: 1]", color: "แกนเหล็ก/น้ำสนิม: ให้สีเขียวขี้ม้าเข้ม หรือ น้ำตาลแกมเขียว", trait: "สายลุย รักอิสระ ปรับตัวเก่ง ทนต่อแรงกดดันได้ดีเหมือนต้นไม้ชายหาด", fortune: "ดวงชีพจรลงเท้า! มีเกณฑ์เดินทางไกลแล้วได้ลาภ หรือมีโชคจากการค้าขายติดต่อกับคนต่างถิ่น" },
-            { id: "ชา", name: "ใบชา", loc: "พบมากที่สุดในพื้นที่ภูเขาสูงทางภาคเหนือ เช่น เชียงราย เชียงใหม่ แม่ฮ่องสอน", color: "แกนเหล็ก/น้ำสนิม: ให้สีเทาเข้ม ถึง เทาดำ (ทำปฏิกิริยากับเหล็กไวมาก)", trait: "เซนส์แรง ไหวพริบเฉียบคม เรียนรู้ไว มีความลึกลับและเปี่ยมสเน่ห์", fortune: "ดวงปัญญาและบารมี! ความคิดแล่นเคลียร์ปัญหาค้างคาได้หมดจด คิดงานใหญ่สำเร็จไว" },
-            { id: "คอแลน", name: "ใบคอแลน (บักแงว)", loc: "พบมากที่สุดในพื้นที่ป่าดงดิบและป่าเบญจพรรณในภาคอีสานและภาคเหนือ", color: "แกนเหล็ก/น้ำสนิม: ให้สีเขียวเข้มคล้ำ จนถึงสีดำสนิท (เหมาะสำหรับตัดเส้นลาย)", trait: "หนักแน่น จริงใจ ชัดเจน ตรงไปตรงมา รักพวกพ้องและพวกพ้องรักมาก", fortune: "ดวงมหาอุดม! ชีวิตอุดมสมบูรณ์ มีผู้ใหญ่คอยหนุนหลัง เส้นทางชีวิตราบรื่นไร้อุปสรรค" },
-            { id: "ฝรั่ง", name: "ใบฝรั่ง", loc: "พบมากที่สุดในพื้นที่เกษตรกรรมและสวนผลไม้ทั่วทุกภาคของประเทศ", color: "ให้สีน้ำตาลอมเหลือง หรือ น้ำตาลอ่อน", trait: "เข้าถึงง่าย อัธยาศัยดี มีมนุษยสัมพันธ์ดีเยี่ยม อยู่ง่ายกินง่าย", fortune: "ดวงเมตตามหานิยม! ไปที่ไหนก็มีแต่คนรักเอ็นดู เงินทองไหลมาเทมาจากการเจรจา" },
-            { id: "มังคุด", name: "ใบมังคุด", loc: "พบมากที่สุดในพื้นที่ภาคใต้และภาคตะวันออก เช่น จันทบุรี ตราด ชุมพร", color: "ให้สีน้ำตาลแดง หรือ น้ำตาลอมชมพู (แทนนินทำปฏิกิริยากับสารสีในใบ)", trait: "อ่อนโยน มีเมตตา ภายนอกดูนิ่งแต่ภายในมีจุดยืนแข็งแกร่ง รสนิยมดี", fortune: "ดวงความรักและสเน่ห์! ความรักหวานชื่น มีเกณฑ์พบเนื้อคู่ หรือได้รับความชื่นชมยอมรับ" },
-            { id: "เพกา", name: "ใบเพกา (ลิ้นฟ้า)", loc: "พบมากในป่าเบญจพรรณและป่าดิบแล้งทั่วประเทศ (โดยเฉพาะภาคเหนือและอีสาน)", color: "ย้อมกับสารส้มได้สีเหลืองหม่น / ย้อมกับสนิมเหล็กได้สีเขียวขี้ม้าเข้ม ถึง เขียวอมเทา", trait: "รักสงบ สุขุมลุ่มลึก ชอบความเรียบง่าย มีเอกลักษณ์ไม่ซ้ำใคร", fortune: "ดวงสุขภาพและอายุยืน! ปัดเป่าสิ่งไม่ดีและโรคภัยไข้เจ็บ จิตใจสงบและมีสมาธิมากขึ้น" },
-            { id: "สมอ", name: "ใบสมอไทย / สมอพิเภก", loc: "พบหนาแน่นในป่าเบญจพรรณและป่าเต็งรังทั่วทุกภาค", color: "ย้อมกับสารส้มได้สีเหลืองหม่น / ย้อมกับสนิมเหล็กได้สีเขียวขี้ม้าเข้ม ถึง เขียวอมเทา", trait: "รอบคอบ เป็นที่ปรึกษาที่ดี ชอบช่วยเหลือผู้อื่น มีความเสียสละสูง", fortune: "ดวงบารมีคุ้มครอง! สิ่งศักดิ์สิทธิ์หนุนหลัง แคล้วคลาดจากภัยอันตรายและศัตรู" },
-            { id: "สะเดา", name: "ใบสะเดา", loc: "ขึ้นทั่วไปตามป่าละเมาะ คันนา และพบมากในพื้นที่แห้งแล้งของภาคอีสานและกลาง", color: "ย้อมกับสารส้มได้สีเหลืองอมเขียวอ่อน / ย้อมกับสนิมเหล็กได้สีเขียวขี้ม้าปนเทา", trait: "นักสู้ แข็งแกร่ง อดทน เติบโตและเบ่งบานได้ดีในสภาวะกดดัน", fortune: "ดวงชนะอุปสรรค! ไม่ว่าจะเจอวิกฤตหนักแค่ไหนก็พลิกฟื้นกลับมาชนะได้ มีโชคจากการแข่งขัน" },
-            { id: "ยูคา", name: "ใบยูคาลิปตัส", loc: "พบมากในพื้นที่ปลูกป่าเศรษฐกิจ แถบภาคตะวันออก ภาคอีสาน และภาคกลาง", color: "มีกลิ่นหอมเฉพาะตัว ย้อมสารส้มได้สีส้มอิฐ หรือ น้ำตาลทอง / ย้อมสนิมได้สีเทาดำ หรือ เขียวขี้ม้า", trait: "สร้างสรรค์ โดดเด่น มีสไตล์ มีเอกลักษณ์และชอบคิดนอกกรอบ", fortune: "ดวงการเงินและโชคลาภ! เงินทองมั่งคั่ง มีชื่อเสียงและผลงานหยิบจับอะไรก็เป็นเงิน" },
-            { id: "ขนุน", name: "ใบขนุน", loc: "พบทั่วไปในสวนหลังบ้านเรือนทั่วทุกภูมิภาคของไทย", color: "ย้อมกับสารส้มได้สีเหลืองทอง หรือ เหลืองสด / ย้อมกับสนิมเหล็กได้สีเขียวขี้ม้า", trait: "รักครอบครัว กตัญญู มีน้ำใจกว้างขวาง เป็นที่พึ่งพาของผู้อื่น", fortune: "ดวงหนุนนำมหาโชค! ทำอะไรก็มีคนคอยช่วยเหลืออุปถัมภ์ จังหวะชีวิตขาขึ้น ไม่มีวันอับจน" },
-            { id: "มะม่วง", name: "ใบมะม่วง", loc: "พบได้หนาแน่นที่สุดในสวนผลไม้ภาคกลาง ภาคเหนือ และทุกพื้นที่ทั่วประเทศ", color: "ย้อมกับสารส้มได้สีเหลืองมะนาวสด / ย้อมกับสนิมเหล็กได้สีเขียวขี้ม้าปนน้ำตาล", trait: "ร่าเริง สดใส พลังงานบวกสูง ปลุกใจและสร้างรอยยิ้มให้คนรอบข้างเก่ง", fortune: "ดวงเริ่มต้นสิ่งใหม่! เหมาะกับการเปิดธุรกิจใหม่ เริ่มโปรเจกต์ใหม่ๆ จะราบรื่นสดใสมาก" },
-            { id: "โกงกาง", name: "ใบโกงกาง", loc: "พบหนาแน่นที่สุดตามป่าชายเลนแถบชายฝั่งทะเลภาคใต้และภาคกลางตอนล่าง", color: "แทนนินเข้มข้น ย้อมสารส้มได้สีน้ำตาลแดง หรือ ส้มอิฐ / ย้อมสนิมได้สีน้ำตาลเข้มเกือบดำ", trait: "เด็ดเดี่ยว มั่นคง พลังผู้นำสูง พร้อมปกป้องและรับผิดชอบดูแลบริวาร", fortune: "ดวงอำนาจวาสนา! บารมีแก่กล้า มีคนเคารพยำเกรง เหมาะเป็นเจ้าของกิจการหรือหัวหน้างาน" },
-            { id: "สัก", name: "ใบสัก", loc: "พบตามบ้านเรือนในภาคเหนือ ภาคใต้ และภาคกลาง หรือสวนป่าเศรษฐกิจ", color: "ให้สีแดงอมม่วงหรือสีน้ำตาลแดง ลายเส้นใบชัดเจนและติดทนมาก", trait: "ทรงเกียรติ มั่นใจในตนเอง รักความสมบูรณ์แบบและยึดมั่นในความถูกต้อง", fortune: "ดวงเศรษฐีมั่นคง! หน้าที่การงานและทรัพย์สินถาวร ได้รับเกียรติยศชื่อเสียงยาวนาน" }
+        // ข้อมูลเริ่มต้นแกะมาจากเอกสาร รายชื่อใบไม้.docx
+        let leavesData = [
+            { name: "ใบหูกวาง", loc: "พบมากตามชายฝั่งทะเลและหาดทราย ภาคใต้และภาคตะวันออก", color: "แกนเหล็ก/น้ำสนิม: ให้สีเขียวขี้ม้าเข้ม หรือ น้ำตาลแกมเขียว", trait: "สายลุย รักอิสระ ปรับตัวเก่ง ทนต่อแรงกดดันได้ดีเหมือนต้นไม้ชายหาด", fortune: "ดวงชีพจรลงเท้า! มีเกณฑ์เดินทางไกลแล้วได้ลาภ หรือมีโชคจากการค้าขายติดต่อคนต่างถิ่น" },
+            { name: "ใบชา", loc: "พบมากในพื้นที่ภูเขาสูงทางภาคเหนือ เช่น เชียงราย เชียงใหม่", color: "แกนเหล็ก/น้ำสนิม: ให้สีเทาเข้ม ถึง เทาดำ (ทำปฏิกิริยากับเหล็กไวมาก)", trait: "เซนส์แรง ไหวพริบเฉียบคม เรียนรู้ไว มีความลึกลับและเปี่ยมสเน่ห์", fortune: "ดวงปัญญาและบารมี! ความคิดแล่นเคลียร์ปัญหาค้างคาได้หมดจด คิดงานใหญ่สำเร็จไว" },
+            { name: "ใบคอแลน (บักแงว)", loc: "พบมากในพื้นที่ป่าดงดิบและป่าเบญจพรรณในภาคอีสานและภาคเหนือ", color: "แกนเหล็ก/น้ำสนิม: ให้สีเขียวเข้มคล้ำ จนถึงสีดำสนิท (เหมาะสำหรับตัดเส้นลาย)", trait: "หนักแน่น จริงใจ ชัดเจน ตรงไปตรงมา รักพวกพ้องและพวกพ้องรักมาก", fortune: "ดวงมหาอุดม! ชีวิตอุดมสมบูรณ์ มีผู้ใหญ่คอยหนุนหลัง เส้นทางชีวิตราบรื่นไร้อุปสรรค" },
+            { name: "ใบฝรั่ง", loc: "พบมากในพื้นที่เกษตรกรรมและสวนผลไม้ทั่วทุกภาคของประเทศ", color: "ให้สีน้ำตาลอมเหลือง หรือ น้ำตาลอ่อน", trait: "เข้าถึงง่าย อัธยาศัยดี มีมนุษยสัมพันธ์ดีเยี่ยม อยู่ง่ายกินง่าย", fortune: "ดวงเมตตามหานิยม! ไปที่ไหนก็มีแต่คนรักเอ็นดู เงินทองไหลมาเทมาจากการเจรจา" },
+            { name: "ใบมังคุด", loc: "พบมากที่สุดในพื้นที่ภาคใต้และภาคตะวันออก เช่น จันทบุรี ตราด ชุมพร", color: "ให้สีน้ำตาลแดง หรือ น้ำตาลอมชมพู (จากสารแทนนินเข้มข้น)", trait: "อ่อนโยน มีเมตตา ภายนอกดูนิ่งแต่ภายในมีจุดยืนแข็งแกร่ง รสนิยมดี", fortune: "ดวงความรักและสเน่ห์! ความรักหวานชื่น มีเกณฑ์พบเนื้อคู่ หรือได้รับความชื่นชมยอมรับ" },
+            { name: "ใบเพกา (ลิ้นฟ้า)", loc: "พบมากในป่าเบญจพรรณและป่าดิบแล้งทั่วประเทศ", color: "ย้อมสารส้มได้สีเหลืองหม่น / ย้อมน้ำสนิมเหล็กได้สีเขียวขี้ม้าเข้ม ถึง เขียวอมเทา", trait: "รักสงบ สุขุมลุ่มลึก ชอบความเรียบง่าย มีเอกลักษณ์ไม่ซ้ำใคร", fortune: "ดวงสุขภาพและอายุยืน! ปัดเป่าสิ่งไม่ดีและโรคภัยไข้เจ็บ จิตใจสงบและมีสมาธิมากขึ้น" },
+            { name: "ใบยูคาลิปตัส", loc: "พบมากในพื้นที่ปลูกป่าเศรษฐกิจ แถบภาคตะวันออก ภาคอีสาน และภาคกลาง", color: "มีกลิ่นหอมเฉพาะตัว ย้อมสารส้มได้สีส้มอิฐ หรือ น้ำตาลทอง / ย้อมสนิมได้สีเทาดำ หรือ เขียวขี้ม้า", trait: "สร้างสรรค์ โดดเด่น มีสไตล์ มีเอกลักษณ์และชอบคิดนอกกรอบ", fortune: "ดวงการเงินและโชคลาภ! เงินทองมั่งคั่ง มีชื่อเสียงและผลงานหยิบจับอะไรก็เป็นเงิน" },
+            { name: "ใบขนุน", loc: "พบทั่วไปในสวนหลังบ้านเรือนทั่วทุกภูมิภาคของไทย", color: "ย้อมสารส้มได้สีเหลืองทอง หรือ เหลืองสด / ย้อมสนิมเหล็กได้สีเขียวขี้ม้า", trait: "รักครอบครัว กตัญญู มีน้ำใจกว้างขวาง เป็นที่พึ่งพาของผู้อื่น", fortune: "ดวงหนุนนำมหาโชค! ทำอะไรก็มีคนคอยช่วยเหลืออุปถัมภ์ จังหวะชีวิตขาขึ้น ไม่มีวันอับจน" }
         ];
 
-        // สร้างปุ่มเลือกใบไม้บนหน้าเว็บ
-        const grid = document.getElementById('leaves-grid');
-        leavesData.forEach(leaf => {
-            const btn = document.createElement('button');
-            btn.className = "p-3 bg-stone-50 hover:bg-emerald-50 border border-stone-200 hover:border-emerald-300 rounded-xl text-stone-700 hover:text-emerald-900 font-medium text-sm transition duration-150 cursor-pointer text-center";
-            btn.innerText = leaf.name;
-            btn.onclick = () => displayPrediction(leaf);
-            grid.appendChild(btn);
-        });
+        // โหลดข้อมูลขึ้นหน้าเว็บครั้งแรก
+        window.onload = function() {
+            renderUserGrid();
+            renderAdminTable();
+        };
+
+        // สลับหน้าจอไปมา
+        function toggleSection(sectionId) {
+            document.getElementById('user-main-view').classList.add('hidden');
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('admin-dashboard').classList.add('hidden');
+            
+            document.getElementById(sectionId).classList.remove('hidden');
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        // ระบบหน้าบ้านผู้ใช้: แสดงกล่องปุ่มกดใบไม้
+        function renderUserGrid() {
+            const grid = document.getElementById('leaves-grid');
+            grid.innerHTML = "";
+            leavesData.forEach((leaf, index) => {
+                const btn = document.createElement('button');
+                btn.className = "p-3.5 bg-purple-900/30 hover:bg-gradient-to-br hover:from-purple-800 hover:to-pink-900/60 border border-purple-500/20 hover:border-amber-400 rounded-2xl text-purple-100 hover:text-amber-300 font-medium text-xs md:text-sm transition duration-200 cursor-pointer text-center shadow-md";
+                btn.innerHTML = `🍃 ${leaf.name}`;
+                btn.onclick = () => displayPrediction(leaf);
+                grid.appendChild(btn);
+            });
+        }
 
         function displayPrediction(leaf) {
             const resultSection = document.getElementById('result-section');
@@ -123,31 +232,29 @@
             resultSection.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // ระบบเปิดกล้องถ่ายภาพจริงและวิเคราะห์ดวง
-        let streamTrack = null;
+        // ระบบเปิดกล้องจำลองการสแกนเสื้อมูเตลู
         function startCameraScan() {
             const video = document.getElementById('webcam');
             const icon = document.getElementById('camera-icon');
             const status = document.getElementById('scan-status');
             
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                status.innerText = "📷 กำลังเปิดกล้องหลังของคุณ...";
-                status.className = "text-xs text-amber-600 font-semibold mt-2 animate-pulse";
+                status.innerText = "🔮 กำลังเปิดตาที่สามและกล้องเพื่อค้นหาลวดลายดวงชะตา...";
+                status.className = "text-xs text-amber-400 font-semibold mt-2 animate-pulse";
                 
                 navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
                 .then(function(stream) {
                     video.srcObject = stream;
                     video.classList.remove('hidden');
                     icon.classList.add('hidden');
-                    status.innerText = "✨ กล้องเปิดแล้ว! กรุณาสวมเสื้อ Eco-print ส่องที่หน้ากล้อง ระบบกำลังวิเคราะห์โทนสี...";
+                    status.innerText = "👚 กล้องพร้อมแล้ว! ระบบกำลังคำนวณธาตุและจับพลังสีมงคลบนเสื้อผ้าของคุณ...";
                     
-                    // สแกนค้างไว้ 3.5 วินาทีแล้วแสดงผลทำนาย
                     setTimeout(() => {
                         const randomIndex = Math.floor(Math.random() * leavesData.length);
                         const selectedLeaf = leavesData[randomIndex];
                         
-                        status.innerText = `✅ วิเคราะห์สำเร็จ! ตรวจพบโทนสีและอัตลักษณ์ของ "${selectedLeaf.name}"`;
-                        status.className = "text-xs text-emerald-600 font-semibold mt-2";
+                        status.innerText = `🔮 ตรวจพบคลื่นพลังลวดลายศักดิ์สิทธิ์จาก "${selectedLeaf.name}" บนตัวคุณ!`;
+                        status.className = "text-xs text-pink-400 font-semibold mt-2";
                         
                         displayPrediction(selectedLeaf);
                         
@@ -158,14 +265,116 @@
                     }, 3500);
                 })
                 .catch(function(error) {
-                    status.innerText = "❌ ไม่สามารถเปิดกล้องได้ (กรุณาอนุญาตสิทธิ์เข้าถึงกล้องบนเว็บของคุณ)";
-                    status.className = "text-xs text-red-500 mt-2";
-                    console.error(error);
+                    status.innerText = "❌ ไม่สามารถเชื่อมกล้องได้ (กรุณาอนุญาตสิทธิ์เข้าถึงกล้องถ่ายภาพบนเบราว์เซอร์)";
+                    status.className = "text-xs text-red-400 mt-2";
                 });
-            } else {
-                status.innerText = "❌ อุปกรณ์หรือเบราว์เซอร์ของคุณไม่รองรับระบบกล้องถ่ายภาพ";
-                status.className = "text-xs text-red-500 mt-2";
             }
+        }
+
+        // ---------------- ระบบหลังบ้านแอดมิน (Admin Logic) ----------------
+        function handleLogin() {
+            const pass = document.getElementById('admin-password').value;
+            const errorTxt = document.getElementById('login-error');
+            
+            // ตั้งค่ารหัสผ่านเข้าหลังบ้านแบบง่ายเป็น "1234" (คุณสามารถเปลี่ยนเป็นคำอื่นได้ตามใจชอบครับ)
+            if (pass === "1234") {
+                errorTxt.classList.add('hidden');
+                document.getElementById('admin-password').value = ""; // ล้างช่อง
+                document.getElementById('nav-login-btn').classList.add('hidden');
+                document.getElementById('nav-logout-btn').classList.remove('hidden');
+                toggleSection('admin-dashboard');
+            } else {
+                errorTxt.classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() {
+            document.getElementById('nav-login-btn').classList.remove('hidden');
+            document.getElementById('nav-logout-btn').classList.add('hidden');
+            toggleSection('user-main-view');
+        }
+
+        // แสดงตารางข้อมูลใบไม้ในหลังบ้าน
+        function renderAdminTable() {
+            const tbody = document.getElementById('admin-table-body');
+            tbody.innerHTML = "";
+            
+            leavesData.forEach((leaf, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-purple-900/20";
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold text-amber-300">${leaf.name}</td>
+                    <td class="p-3 text-purple-200 hidden sm:table-cell max-w-xs truncate">${leaf.color}</td>
+                    <td class="p-3 space-x-2">
+                        <button onclick="editLeaf(${index})" class="bg-amber-500 hover:bg-amber-400 text-purple-950 font-bold px-2.5 py-1 rounded text-xs cursor-pointer">แก้ไข</button>
+                        <button onclick="deleteLeaf(${index})" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1 rounded text-xs cursor-pointer">ลบ</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function showAddForm() {
+            document.getElementById('leaf-form-container').classList.remove('hidden');
+            document.getElementById('form-title').innerText = "🔮 เพิ่มข้อมูลใบไม้มงคลใหม่";
+            document.getElementById('form-edit-index').value = "";
+            
+            // ล้างข้อมูลในฟอร์มให้โล่ง
+            document.getElementById('form-name').value = "";
+            document.getElementById('form-loc').value = "";
+            document.getElementById('form-color').value = "";
+            document.getElementById('form-trait').value = "";
+            document.getElementById('form-fortune').value = "";
+        }
+
+        // ปุ่มแก้ไข
+        function editLeaf(index) {
+            const leaf = leavesData[index];
+            document.getElementById('leaf-form-container').classList.remove('hidden');
+            document.getElementById('form-title').innerText = `📝 แก้ไขข้อมูล: ${leaf.name}`;
+            document.getElementById('form-edit-index').value = index;
+            
+            document.getElementById('form-name').value = leaf.name;
+            document.getElementById('form-loc').value = leaf.loc;
+            document.getElementById('form-color').value = leaf.color;
+            document.getElementById('form-trait').value = leaf.trait;
+            document.getElementById('form-fortune').value = leaf.fortune;
+            
+            document.getElementById('leaf-form-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ลบข้อมูลใบไม้
+        function deleteLeaf(index) {
+            if (confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูล "${leavesData[index].name}" ออกจากระบบ?`)) {
+                leavesData.splice(index, 1);
+                renderUserGrid();
+                renderAdminTable();
+            }
+        }
+
+        // กดบันทึกข้อมูล (ทั้งเพิ่มใหม่และแก้ไข)
+        function saveLeafData() {
+            const index = document.getElementById('form-edit-index').value;
+            const newLeaf = {
+                name: document.getElementById('form-name').value || "ไม่ระบุชื่อ",
+                loc: document.getElementById('form-loc').value || "ไม่ระบุข้อมูล",
+                color: document.getElementById('form-color').value || "ไม่ระบุข้อมูล",
+                trait: document.getElementById('form-trait').value || "ไม่ระบุข้อมูล",
+                fortune: document.getElementById('form-fortune').value || "ไม่ระบุข้อมูล"
+            };
+
+            if (index === "") {
+                // กรณีเพิ่มใหม่
+                leavesData.push(newLeaf);
+            } else {
+                // กรณีแก้ไขจากตัวเก่า
+                leavesData[index] = newLeaf;
+            }
+
+            // ซ่อนฟอร์มและรีเฟรชการแสดงผลใหม่ทั้งหมด
+            document.getElementById('leaf-form-container').classList.add('hidden');
+            renderUserGrid();
+            renderAdminTable();
         }
     </script>
 </body>
